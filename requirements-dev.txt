@@ -1,0 +1,15 @@
+-r requirements.txt
+coverage
+detox
+pep8
+pytest
+pytest-cov
+pytest-flake8
+pytest-html
+pytest-isort
+pytest-runner
+pytest-xdist
+sphinx
+sphinx_rtd_theme
+sphinxcontrib-napoleon
+tox
