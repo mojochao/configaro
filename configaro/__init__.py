@@ -13,8 +13,6 @@ import sys
 from importlib import import_module
 from importlib.abc import FileLoader, SourceLoader
 
-import munch
-
 __all__ = [
     'ConfigaroError',
     'ConfigNotFoundError',
@@ -236,7 +234,8 @@ def _config_data():
             deltas = _load(path)
             merged = dict(_merge(_CONFIG_DATA, deltas))
             _CONFIG_DATA = merged
-        _CONFIG_DATA = munch.munchify(_CONFIG_DATA)
+        from munch import munchify
+        _CONFIG_DATA = munchify(_CONFIG_DATA)
     return _CONFIG_DATA
 
 
