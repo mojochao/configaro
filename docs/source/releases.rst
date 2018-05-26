@@ -17,12 +17,14 @@ Features
 --------
 
 - improvements to documentation
-- improvements to configaro.put()
+- improvements to :meth:`configaro.put`
 
 Changes
 -------
 
-- configaro.initialize() renamed to configaro.init()
+- converted to single module library
+- removed duplication of release metadata
+- renamed :meth:`configaro.initialize` to :meth:`configaro.init`
 
 .. _configaro_release_0_9_3:
 
@@ -43,6 +45,11 @@ Fixes
 -----
 
 - packaging and requirements fixes
+
+Deletions
+=========
+
+- :meth:`configaro.render`
 
 .. _configaro_release_0_9_1:
 
