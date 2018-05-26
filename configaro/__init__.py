@@ -116,7 +116,8 @@ def initialize(config_package, locals_path=None, locals_env_var=None):
     If the optional *locals_env_var* argument is provided it will be used as a
     an environment variable configuring the path of the locals config module to load.
 
-    Repeated calls to this function result are a no-op.
+    Repeated calls to this function return immediately.  You can not re-initialize
+    with different values.
 
     Args:
         config_package (str): package containing defaults and locals config modules

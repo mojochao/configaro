@@ -15,7 +15,7 @@ Why should I care?
 - provide a system that allows for hierarchical configuration data that supports dot-addressable property access 
 - provide a system that allows for configuration defaults and local overrides
 - provide a system with complete test coverage
-- provide a system with complete documentation coverage
+- provide a system with complete documentation
 
 If this sounds appealing to you, keep on reading.
 
