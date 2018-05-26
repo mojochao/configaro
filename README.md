@@ -46,4 +46,4 @@ Documentation
 -------------
 
 `configaro` documentation is hosted on [Read The Docs](https://readthedocs.org/projects/configaro/)
-and should be consulted for information on integrating ``configaro`` into your project.
+and should be consulted for information on integrating it into your project.
