@@ -38,7 +38,7 @@ Configaro may also be installed from source:
     $ git clone https://github.com/mojochao/configaro.git
     $ pip3 install .
 
-If you install from source with `.[all]` you should be able to run tests:
+If you install from source with `.[dev]` you should be able to run tests:
 
     $ pytest
 
