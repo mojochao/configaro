@@ -20,7 +20,7 @@ release_metadata = {
         'Natural Language :: English',
         'Programming Language :: Python',
         'Programming Language :: Python :: 3.6',
-        'License :: MIT'
+        'License :: OSI Approved :: MIT License'
     ],
     'keywords': [
         'configuration',
