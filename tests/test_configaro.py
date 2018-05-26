@@ -28,12 +28,12 @@ SAMPLE_DATA = {
 # ---------------------------------------------------------------------------
 
 def test__module_path():
-    from configaro.configaro import _module_path
+    from configaro import _module_path
     assert _module_path(CONFIG_DIR, 'defaults') == os.path.join(CONFIG_DIR, 'defaults.py')
 
 
 def test__import_module():
-    from configaro.configaro import _import_module
+    from configaro import _import_module
     module = _import_module(CONFIG_DIR, 'defaults')
     assert module.config == SAMPLE_DATA
 
@@ -42,7 +42,7 @@ def test__import_module():
 
 
 def test__merge():
-    from configaro.configaro import _merge
+    from configaro import _merge
     defaults = SAMPLE_DATA
     locals = {
         'name': 'locals',
@@ -75,14 +75,14 @@ def test__merge():
 
 
 def test__load():
-    from configaro.configaro import _load, _module_path
+    from configaro import _load, _module_path
     path = _module_path(CONFIG_DIR, 'defaults')
     config = _load(path)
     assert config['name'] == 'defaults'
 
 
 def test__cast():
-    from configaro.configaro import _cast
+    from configaro import _cast
     assert _cast('None') is None
     assert isinstance(_cast('False'), bool)
     assert isinstance(_cast('1'), int)
@@ -91,8 +91,7 @@ def test__cast():
 
 
 def test__get():
-    from configaro import PropertyNotFoundError
-    from configaro.configaro import _get
+    from configaro import PropertyNotFoundError, _get
     data = munch.munchify(SAMPLE_DATA)
     assert _get(data, 'name') == 'defaults'
     assert _get(data, 'log.level') == 'ERROR'
@@ -103,12 +102,12 @@ def test__get():
 
 
 def test__config_package_dir():
-    from configaro.configaro import _config_package_dir
+    from configaro import _config_package_dir
     assert _config_package_dir() == CONFIG_DIR
 
 
 def test___config_module_paths():
-    from configaro.configaro import _config_module_paths
+    from configaro import _config_module_paths
     expected = [
         os.path.join(CONFIG_DIR, 'defaults.py'),
         os.path.join(CONFIG_DIR, 'locals.py'),
@@ -118,15 +117,14 @@ def test___config_module_paths():
 
 
 def test__config_data():
-    from configaro.configaro import _config_data
+    from configaro import _config_data
     data = _config_data()
     assert data
     assert isinstance(data, dict)
 
 
 def test__ensure_initialized():
-    from configaro import NotInitializedError, initialize
-    from configaro.configaro import _INITIALIZED, _ensure_initialized
+    from configaro import NotInitializedError, initialize, _ensure_initialized
     with pytest.raises(NotInitializedError):
         _ensure_initialized()
 
@@ -151,13 +149,12 @@ def test_exports():
         'get',
         'initialize',
         'put',
-        'render'
     ]
     assert sorted(exports) == sorted(expected)
 
 
 def test_initialize():
-    from configaro import get, initialize
+    from configaro import initialize
     initialize('tests.config')
 
 
@@ -191,8 +188,8 @@ def test_get():
     assert log == expected['log']
 
 
-def put():
-    from configaro import get, initialize, put
+def test_put():
+    from configaro import PropertyNotScalarError, get, initialize, put
     initialize('tests.config')
 
     put('log.level=INFO')
@@ -204,13 +201,5 @@ def put():
         put('log.level')
 
     # ensure that we cannot put a non-scalar
-    with pytest.raises(RuntimeError):
+    with pytest.raises(PropertyNotScalarError):
         put('log=INFO')
-
-
-def render():
-    from configaro import initialize, render
-    initialize('tests.config')
-    rendered = render()
-    assert rendered
-    assert isinstance(rendered, str)

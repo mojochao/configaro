@@ -7,9 +7,9 @@ used by setuptools in the package setup.py script.
 
 release_metadata = {
     'name': 'configaro',
-    'description': 'Minimal package configuration that\'s music to my ears.',
-    'version': '0.1.0',
-    'url': 'https://gihub.com/mojochao/configaro',
+    'description': "A configuration library that's music to your ears.",
+    'version': '0.9.0',
+    'url': 'https://github.com/mojochao/configaro',
     'author': 'Allen Gooch',
     'author_email': 'allen.gooch@gmail.com',
     'maintainer': 'Allen Gooch',
