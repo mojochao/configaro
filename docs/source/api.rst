@@ -3,10 +3,23 @@
 API
 ===
 
-``configaro`` has a spartan set of three APIs and a handful of error classes.
+``configaro`` is provided as a single module.
 
-configaro.__init__
-------------------
+It has a spartan set of three APIs:
 
-.. automodule:: configaro.__init__
-   :members:
+- :meth:`configaro.init`
+- :meth:`configaro.get`
+- :meth:`configaro.put`
+
+It also has several error classes:
+
+- :class:`configaro.ConfigaroError`
+- :class:`configaro.ConfigNotFoundError`
+- :class:`configaro.ConfigNotValidError`
+- :class:`configaro.NotInitializedError`
+- :class:`configaro.PropertyNotFoundError`
+- :class:`configaro.PropertyNotScalarError`
+- :class:`configaro.UpdateNotValidError`
+
+..  automodule:: configaro
+    :members:

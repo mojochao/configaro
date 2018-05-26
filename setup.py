@@ -2,18 +2,37 @@
 
 from setuptools import find_packages, setup
 
-from configaro.__metadata__ import release_metadata as configuration
-
-packages = find_packages()
-
 with open('README.md') as infile:
     long_description = infile.read()
 
 with open('requirements.txt') as infile:
     requirements = [line.strip() for line in infile.readlines()]
 
-configuration.update(dict(
-    packages=packages,
+release_metadata = {
+    'name': 'configaro',
+    'description': "A configuration library that's music to your ears.",
+    'version': '0.9.4',
+    'url': 'https://github.com/mojochao/configaro',
+    'author': 'Allen Gooch',
+    'author_email': 'allen.gooch@gmail.com',
+    'maintainer': 'Allen Gooch',
+    'maintainer_email': 'allen.gooch@gmail.com',
+    'license': 'MIT',
+    'classifiers': [
+        'Development Status :: 4 - Beta',
+        'Natural Language :: English',
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 3.6',
+        'License :: OSI Approved :: MIT License'
+    ],
+    'keywords': [
+        'configuration',
+        'utility'
+    ]
+}
+
+release_metadata.update(dict(
+    py_modules=['configaro'],
     long_description=long_description,
     long_description_content_type='text/markdown',
     install_requires=requirements,
@@ -21,4 +40,5 @@ configuration.update(dict(
     test_suite='tests',
 ))
 
-setup(**configuration)
+if __name__ == '__main__':
+    setup(**release_metadata)

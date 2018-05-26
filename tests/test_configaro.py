@@ -124,11 +124,11 @@ def test__config_data():
 
 
 def test__ensure_initialized():
-    from configaro import NotInitializedError, initialize, _ensure_initialized
+    from configaro import NotInitializedError, init, _ensure_initialized
     with pytest.raises(NotInitializedError):
         _ensure_initialized()
 
-    initialize('tests.config')
+    init('tests.config')
     _ensure_initialized()
 
 
@@ -146,21 +146,22 @@ def test_exports():
         'NotInitializedError',
         'PropertyNotFoundError',
         'PropertyNotScalarError',
+        'UpdateNotValidError',
         'get',
-        'initialize',
+        'init',
         'put',
     ]
     assert sorted(exports) == sorted(expected)
 
 
 def test_initialize():
-    from configaro import initialize
-    initialize('tests.config')
+    from configaro import init
+    init('tests.config')
 
 
 def test_get():
-    from configaro import get, initialize
-    initialize('tests.config')
+    from configaro import get, init
+    init('tests.config')
     expected = {
         'name': 'locals',
         'log': {
@@ -189,15 +190,15 @@ def test_get():
 
 
 def test_put():
-    from configaro import PropertyNotScalarError, get, initialize, put
-    initialize('tests.config')
+    from configaro import PropertyNotScalarError, UpdateNotValidError, get, init, put
+    init('tests.config')
 
     put('log.level=INFO')
     config = get()
     assert config.log.level == 'INFO'
 
     # ensure that we cannot put with a malformed arg
-    with pytest.raises(ValueError):
+    with pytest.raises(UpdateNotValidError):
         put('log.level')
 
     # ensure that we cannot put a non-scalar

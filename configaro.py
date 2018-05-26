@@ -1,10 +1,32 @@
-"""Configaro configuration system.
+"""Configaro configuration library.
 
-This configuration system provides one that:
-    - supports hierarchical configuration data
-    - supports attribute dot-addressable access
-    - supports defaults and local overrides
-    - does not leak module imports into the configuration
+``configaro`` has been created with the following design goals in mind:
+
+    - provide a single file library with minimal dependencies
+    - provide one with a simple, expressive API that is easy to use and gets out of your way
+    - provide one that allows for hierarchical config data supporting dot-addressable access
+    - provide one that allows for config defaults and local overrides
+    - provide one with complete test coverage
+    - provide one with complete documentation
+
+If this sounds appealing to you, take a look::
+
+    import configaro as cfg
+
+    # Initialize the library with the name of the package containing your defaults.py config module
+    cfg.init('mypkg.config')
+
+    # Get the entire config object
+    config = cfg.get()
+    print(config)  # prints "{'greeting': 'Hello', 'subject': 'World'}"
+
+    # Config object provide attribute access style in addition to dict access style.
+    print('f{config.greeting}, {config.subject}!')  # prints "Hello, World!"
+
+    # Config objects may be updated quite flexibly as well.
+    cfg.put(greeting='Goodbye', subject='Folks'}
+    cfg.put({'greeting': 'Goodbye', 'subject': 'Folks'})
+    cfg.put('greeting=Goodby subject=Folks')
 
 """
 import ast
@@ -20,8 +42,9 @@ __all__ = [
     'NotInitializedError',
     'PropertyNotFoundError',
     'PropertyNotScalarError',
+    'UpdateNotValidError',
     'get',
-    'initialize',
+    'init',
     'put',
 ]
 
@@ -83,39 +106,66 @@ class ConfigNotValidError(ConfigaroError):
 class PropertyNotFoundError(ConfigaroError):
     """Config property not found error."""
 
-    def __init__(self, data, prop):
-        super().__init__(f'config property not found: {prop}')
+    def __init__(self, data, prop_name):
+        super().__init__(f'config property not found: {prop_name}')
         self.data = data
-        self.prop = prop
+        self.prop_name = prop_name
 
 
 class PropertyNotScalarError(ConfigaroError):
     """Config property not scalar error."""
 
-    def __init__(self, data, prop):
-        super().__init__(f'config property not scalar: {prop}')
+    def __init__(self, data, prop_name):
+        super().__init__(f'config property not scalar: {prop_name}')
         self.data = data
-        self.prop = prop
+        self.prop = prop_name
+
+
+class UpdateNotValidError(ConfigaroError):
+    """Config update not valid error."""
+
+    def __init__(self, update):
+        super().__init__(f'config update not valid: {update}')
+        self.update = update
 
 
 # ---------------------------------------------------------------------------
 # External API.
 # ---------------------------------------------------------------------------
 
-def initialize(config_package, locals_path=None, locals_env_var=None):
-    """Initialize configaro library.
+def init(config_package, locals_path=None, locals_env_var=None):
+    """Initialize configuration.
+
+    The configuration must be initialized before use.
 
     The required *config_package* argument is used to define the package in
-    which the defaults and (possibly) the locals config modules are loaded from.
+    which the ``defaults.py`` config module is loaded from::
 
-    If the optional *locals_path* argument is provided it will be used instead
-    of any locals config module in the config package.
+        init('my_pkg.config')
+
+    If no other options are provided, the ``locals.py`` config module, if it
+    exists, will be loaded from there as well.
+
+    If the optional *locals_path* argument is provided it will be used, if it
+    exists, instead of any ``locals.py`` config module in the config package::
+
+        init('my_pkg.config', locals_path='/path/to/my/alternatively_named_locals.py')
 
     If the optional *locals_env_var* argument is provided it will be used as a
-    an environment variable configuring the path of the locals config module to load.
+    an environment variable configuring the path of the locals config module to
+    load, if the module exists::
 
-    Repeated calls to this function return immediately.  You can not re-initialize
-    with different values.
+        init('my_pkg.config', locals_env_var='MY_PKG_CONFIG_LOCALS')
+
+    Both a locals path and a locals env var may be provided.  Precedence order
+    of locals config module resolution from highest to lowest include:
+
+    - one found at path specified by locals env var
+    - one found at path specified by locals path
+    - one found in config package
+
+    Repeated initialization has no effect.  You can not re-initialize with
+    different values.
 
     Args:
         config_package (str): package containing defaults and locals config modules
@@ -134,76 +184,109 @@ def initialize(config_package, locals_path=None, locals_env_var=None):
         _INITIALIZED = True
 
 
-def get(*props):
+def get(*prop_names):
     """Get configuration values.
 
-    If no configuration *props* are provided, returns the whole configuration.
+    If no *prop_names* are provided, returns the config root object.
 
-    If one value is provided in *props*, returns that portion of the configuration.
+    If one value is provided in *prop_names*, returns that config
+    sub-object.
 
-    If multiple values are provided in *props*, returns a list of each portion of
-    the configuration identified in *props*.
+    If multiple values are provided in *prop_names*, returns a list of
+    config sub-objects.
 
     Args:
-        props (List[str]): configuration properties
+        prop_names (List[str]): configuration property names
 
     Returns:
-        Any | Dict[str, Any]: config values
+        Any | Dict[str, Any]: config property values
 
     Raises:
         configaro.NotInitialized: if library has not been initialized
-        configaro.PropertyNotFoundError: if a prop in *props* is not found
+        configaro.PropertyNotFoundError: if a property in *prop_names* is not found
 
     """
     _ensure_initialized()
     data = _config_data()
-    if not props:
+    if not prop_names:
         return data
-    elif len(props) == 1:
-        return _get(data, props[0])
+    elif len(prop_names) == 1:
+        return _get(data, prop_names[0])
     else:
-        return [_get(data, arg) for arg in props]
+        return [_get(data, arg) for arg in prop_names]
 
 
 def put(*args, **kwargs):
     """Put configuration values.
 
+    This function supports three styles of usage.
+
+    First, the entire config object can be updated with a single dict argument::
+
+        put({'prop_a': True, 'prop_b': 23})
+
+    Second, updates can also be specified by name=value update strings.  If
+    one or more string arguments are passed, the updates described by those
+    update strings will be applied to the config object::
+
+        put('prop_a=True')
+        put('prop_b=23')
+
+    Update strings allow hierarchical configs to be updated::
+
+        put('prop.nested=awesome')
+
+    You can also batch up multiple updates in a single update string::
+
+        put('prop_a=True prop.nested=awesome')
+
+    Third, if you are using accessing root config properties you can use
+    keyword arguments::
+
+        put(prop_a=True, prop_d={'greeting': 'Hello', 'subject': 'world'})
+
     Args:
-        args (List[str]): config 'some.knob=value' arguments
-        kwargs (Dict[str, Any]): config someknob='value' arguments
+        args (Dict | str | List[str]): config dict object or one or more 'some.knob=value' update strings
+        kwargs (Dict[str, Any]): config update keyword args
 
     Raises:
-        ValueError: if any arg in args is malformed
         configaro.NotInitializedError: if library has not been initialized
         configaro.PropertyNotScalarError: if property is not a scalar
+        configaro.UpdateNotValidError: if update string is not valid
 
     """
     _ensure_initialized()
     data = _config_data()
 
-    # If the caller wishes to modify nested properties, they must be passed in as
-    # property assignment strings, such as 'log.level=INFO'.
+    # Handle passing in a single dict arg.
+    if len(args) == 1 and isinstance(args[0], dict):
+        data.update(args[0])
+        return
+
+    # Handle passing in a prop name and an update value of any sort other than string.
+    if len(args) == 2 and isinstance(args[0], str) and not isinstance(args[1], str):
+        _put(data, args[0], args[1])
+        return
+
+    # Handle positional string arguments.  If the caller wishes to modify
+    # nested properties, they must be passed in as update strings, such as
+    # 'log.level=INFO'.  Values will be cast from strings to their appropriate
+    # type.  Multiple updates can be specified in a single string separated by
+    # whitespace.
+    if len(args) == 1 and isinstance(args[0], str):
+        args = args[0].split()
     for arg in args:
-        name, value = arg.split('=')
-        value = _cast(value)
+        try:
+            name, value = arg.split('=')
+            value = _cast(value)
+            _put(data, name, value)
+        except ValueError:
+            raise UpdateNotValidError(arg)
 
-        scopes = name.split('.')
-        if len(scopes) > 1:
-            config = get('.'.join(scopes[:-1]))
-            name = scopes[-1]
-        else:
-            config = get()
-        if isinstance(config[name], dict):
-            raise PropertyNotScalarError(data, name)
-        config[name] = value
-
-    # If the caller doesn't care about nested properties, the top level property
-    # names may be passed in keyword args, such as disable_auth=True.
+    # Handle any keyword arguments.  If the caller doesn't care about nested
+    # property updates, property names and values may be passed in keyword args.
     for name, value in kwargs.items():
-        config = data
-        if isinstance(config[name], dict):
-            raise PropertyNotScalarError(data, name)
-        config[name] = value
+        _put(data, name, value)
 
 
 # ---------------------------------------------------------------------------
@@ -318,24 +401,50 @@ def _cast(value):
     return value
 
 
-def _get(data, prop):
-    """Get data identified by property.
+def _get(data, prop_name):
+    """Get config value identified by config property in config data.
 
     Arg:
-        prop (str): configuration property
+        data (dict): config data
+        prop_name (str): config property name
 
     Returns:
-        Any | Dict[str, Any]: config values
+        Any | Dict[str, Any]: config data
 
     Raises:
         configaro.PropertyNotFoundError: if property is not found
 
     """
     try:
-        # NOTE: do not remove the 'data' parameter in function as it is used here
-        return eval(f'data.{prop}')
+        return eval(f'data.{prop_name}')  # NOTE: do not remove the 'data' parameter in function as it is used here!
     except AttributeError:
-        raise PropertyNotFoundError(data, prop)
+        raise PropertyNotFoundError(data, prop_name)
+
+
+def _put(data, prop_name, prop_value):
+    """Put config value identified by config property in config data.
+
+    Arg:
+        data (dict): config data
+        prop_name (str): config property name
+        prop_value (Any): config value
+
+    Raises:
+        configaro.PropertyNotFoundError: if config property is not found
+        configaro.PropertyNotScalarError: if config property is not scalar and non-dict value is provided
+
+    """
+    from munch import Munch
+    prop_parts = prop_name.split('.')
+    if len(prop_parts) > 1:
+        parent_prop_name = '.'.join(prop_parts[:-1])
+        prop_name = prop_parts[-1]
+        config = _get(data, parent_prop_name)
+    else:
+        config = data
+    if isinstance(config[prop_name], Munch) and not isinstance(prop_value, dict):
+        raise PropertyNotScalarError(config, prop_name)
+    config[prop_name] = prop_value
 
 
 def _load(path):

@@ -8,6 +8,22 @@ Release Notes
     :maxdepth: 2
     :caption: Contents:
 
+.. _configaro_release_0_9_4:
+
+0.9.4
+=====
+
+Features
+--------
+
+- improvements to documentation
+- improvements to configaro.put()
+
+Changes
+-------
+
+- configaro.initialize() renamed to configaro.init()
+
 .. _configaro_release_0_9_3:
 
 0.9.3
@@ -16,7 +32,7 @@ Release Notes
 Fixes
 -----
 
-- readthedocs documentation build fixes
+- documentation build fixes
 
 .. _configaro_release_0_9_2:
 

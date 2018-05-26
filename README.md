@@ -11,13 +11,32 @@ Why should I care?
 
 `configaro` has been created with the following design goals in mind:
 
-- provide a system with a simple API that is easy to use and gets out of your way
-- provide a system that allows for hierarchical configuration data that supports dot-addressable property access 
-- provide a system that allows for configuration defaults and local overrides
-- provide a system with complete test coverage
-- provide a system with complete documentation
+- provide a single file library with minimal dependencies
+- provide one with a simple, expressive API that is easy to use and gets out of your way
+- provide one that allows for hierarchical config data supporting dot-addressable access 
+- provide one that allows for config defaults and local overrides
+- provide one with complete test coverage
+- provide one with complete documentation
 
-If this sounds appealing to you, keep on reading.
+If this sounds appealing to you, take a look:
+
+    import configaro as cfg
+    
+    # Initialize the library with the name of the package containing your defaults.py config module
+    cfg.init('mypkg.config')
+    
+    # Get the entire config object
+    config = cfg.get()
+    print(config)  # prints "{'greeting': 'Hello', 'subject': 'World'}"
+
+    # Config object provide attribute access style in addition to dict access style.    
+    print('f{config.greeting}, {config.subject}!')  # prints "Hello, World!"
+    
+    # Config objects may be updated quite flexibly as well.
+    cfg.put(greeting='Goodbye', subject='Folks'}
+    cfg.put({'greeting': 'Goodbye', 'subject': 'Folks'}) 
+    cfg.put('greeting=Goodby subject=Folks')
+
 
 What about Python 2?
 --------------------

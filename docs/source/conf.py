@@ -18,21 +18,12 @@
 # vendor imports
 import sphinx_rtd_theme
 
-# # project imports
-# project_path = os.path.join(os.path.dirname(__file__), '..', '..')
-# print('project path: ' + project_path)
-# sys.argv.append(project_path)
-# from configaro.__metadata__ import release_metadata
+# TODO: these are already defined in setup.py, grab them from there and keep this DRY!
 release_metadata = {
     'name': 'configaro',
     'description': "A configuration library that's music to your ears.",
     'version': '0.9.3',
-    'url': 'https://github.com/mojochao/configaro',
     'author': 'Allen Gooch',
-    'author_email': 'allen.gooch@gmail.com',
-    'maintainer': 'Allen Gooch',
-    'maintainer_email': 'allen.gooch@gmail.com',
-    'license': 'MIT',
 }
 
 # -- General configuration ------------------------------------------------
