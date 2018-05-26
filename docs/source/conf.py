@@ -26,7 +26,7 @@ import sphinx_rtd_theme
 release_metadata = {
     'name': 'configaro',
     'description': "A configuration library that's music to your ears.",
-    'version': '0.9.2',
+    'version': '0.9.3',
     'url': 'https://github.com/mojochao/configaro',
     'author': 'Allen Gooch',
     'author_email': 'allen.gooch@gmail.com',

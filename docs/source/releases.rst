@@ -8,6 +8,36 @@ Release Notes
     :maxdepth: 2
     :caption: Contents:
 
+.. _configaro_release_0_9_3:
+
+0.9.3
+=====
+
+Fixes
+-----
+
+- readthedocs documentation build fixes
+
+.. _configaro_release_0_9_2:
+
+0.9.2
+=====
+
+Fixes
+-----
+
+- packaging and requirements fixes
+
+.. _configaro_release_0_9_1:
+
+0.9.1
+=====
+
+Features
+--------
+
+- documentation improvements
+
 .. _configaro_release_0_9_0:
 
 0.9.0
