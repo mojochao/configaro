@@ -19,8 +19,9 @@ import sys
 import sphinx_rtd_theme
 
 # project imports
-pkg_path = os.path.join(os.path.dirname(__file__), '..', '..')
-sys.argv.append(pkg_path)
+project_path = os.path.join(os.path.dirname(__file__), '..', '..')
+print(f'project path: {project_path}')
+sys.argv.append(project_path)
 from configaro.__metadata__ import release_metadata
 
 
