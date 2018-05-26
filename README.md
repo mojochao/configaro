@@ -19,8 +19,8 @@ Why should I care?
 
 If this sounds appealing to you, keep on reading.
 
-What about Python 2
--------------------
+What about Python 2?
+--------------------
 
 I have zero interest in supporting Python 2 at this point.  If you are still
 using Python 2 then move along -- there's nothing to see here.  Fork it if you
