@@ -24,16 +24,16 @@ What about Python 2?
 
 I have zero interest in supporting Python 2 at this point.  If you are still
 using Python 2 then move along -- there's nothing to see here.  Fork it if you
-like and submit a Pull Request.
+like and submit a pull request.
 
 Installation
 ------------
 
-Configaro may be installed from the Python package index:
+`configaro` may be installed from the Python package index:
 
     $ pip3 install configaro
 
-Configaro may also be installed from source:
+`configaro` may also be installed from source:
 
     $ git clone https://github.com/mojochao/configaro.git
     $ pip3 install .
@@ -45,5 +45,5 @@ If you install from source with `.[dev]` you should be able to run tests:
 Documentation
 -------------
 
-Documentation is hosted on [Read The Docs](https://readthedocs.org/projects/configaro/)
+`configaro` documentation is hosted on [Read The Docs](https://readthedocs.org/projects/configaro/)
 and should be consulted for information on integrating ``configaro`` into your project.
