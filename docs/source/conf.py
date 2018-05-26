@@ -19,9 +19,9 @@ import sys
 import sphinx_rtd_theme
 
 # project imports
-from configaro.__metadata__ import release_metadata
-pkg_path = os.path.join(os.path.dirname(__file__), '..', '..', 'configaro')
+pkg_path = os.path.join(os.path.dirname(__file__), '..', '..')
 sys.argv.append(pkg_path)
+from configaro.__metadata__ import release_metadata
 
 
 # -- General configuration ------------------------------------------------
