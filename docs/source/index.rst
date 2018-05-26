@@ -10,7 +10,7 @@ Overview
 What is it?
 -----------
 
-``configaro`` is a Python 3 configuration library that's music to your ears..
+``configaro`` is a Python 3 configuration library that's music to your ears.
 
 Why should I care?
 ------------------
@@ -58,7 +58,7 @@ if you like and submit a pull request.
 
     usage
     api
-    releases
+    changes
 
 Indices and tables
 ==================

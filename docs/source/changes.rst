@@ -1,8 +1,8 @@
 .. _configaro_releases:
 
-=============
-Release Notes
-=============
+=======
+Changes
+=======
 
 ..  toctree::
     :maxdepth: 2
@@ -16,6 +16,7 @@ Release Notes
 Features
 --------
 
+- improvements to automation
 - improvements to documentation
 - improvements to :meth:`configaro.put`
 
@@ -47,7 +48,7 @@ Fixes
 - packaging and requirements fixes
 
 Deletions
-=========
+---------
 
 - :meth:`configaro.render`
 

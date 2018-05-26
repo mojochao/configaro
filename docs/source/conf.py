@@ -12,35 +12,14 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 # system imports
-# import os
-# import sys
+import json
 
 # vendor imports
 import sphinx_rtd_theme
 
 # release package configuration
-release_metadata = {
-    "name": "configaro",
-    "description": "A Python 3 configuration library that's music to your ears.",
-    "version": "0.9.4",
-    "url": "https://github.com/mojochao/configaro",
-    "author": "Allen Gooch",
-    "author_email": "allen.gooch@gmail.com",
-    "maintainer": "Allen Gooch",
-    "maintainer_email": "allen.gooch@gmail.com",
-    "license": "MIT",
-    "classifiers": [
-        "Development Status :: 4 - Beta",
-        "Natural Language :: English",
-        "Programming Language :: Python",
-        "Programming Language :: Python :: 3.6",
-        "License :: OSI Approved :: MIT License"
-    ],
-    "keywords": [
-        "configuration",
-        "utility"
-    ]
-}
+with open('../../release.json') as infile:
+    release_metadata = json.load(infile)
 
 # -- General configuration ------------------------------------------------
 

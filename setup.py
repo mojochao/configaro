@@ -1,11 +1,13 @@
 """Configaro setup module."""
+import json
 
 from setuptools import setup
 
-from docs.source.conf import release_metadata
-
 with open('README.md') as infile:
     long_description = infile.read()
+
+with open('release.json') as infile:
+    release_metadata = json.load(infile)
 
 with open('requirements.txt') as infile:
     requirements = [line.strip() for line in infile.readlines()]
