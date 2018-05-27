@@ -13,15 +13,15 @@
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 # system imports
 import json
-# import os
-# import sys
+import os
+import sys
 
 # vendor imports
 import sphinx_rtd_theme
 
 # add project directory to path so configaro module can be found by automodule
-# project_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
-# sys.path.insert(0, project_dir)
+project_dir = os.path.abspath('../..')
+sys.path.insert(0, project_dir)
 
 # release package configuration
 with open('../../release.json') as infile:
