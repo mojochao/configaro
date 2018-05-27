@@ -8,6 +8,26 @@ Changes
     :maxdepth: 2
     :caption: Contents:
 
+.. _configaro_release_0_9_7:
+
+0.9.7
+=====
+
+Features
+--------
+
+- improvements to API documentation
+
+.. _configaro_release_0_9_6:
+
+0.9.6
+=====
+
+Features
+--------
+
+- improvements to Usage documentation
+
 .. _configaro_release_0_9_5:
 
 0.9.5
@@ -16,8 +36,10 @@ Changes
 Features
 --------
 
-- :meth:`configaro.get` now accepts *not_found* keyword arg to pass value to be returned if property is not found, instead of raising error
+- :meth:`configaro.get` now accepts *default* keyword arg to pass value to be returned if property is not found, instead of raising error
 - expanded test coverage
+- added coverage checks to tox tests
+- added style checks to tox tests
 - improvements to documentation
 
 .. _configaro_release_0_9_4:
@@ -28,9 +50,9 @@ Features
 Features
 --------
 
-- improvements to automation
+- tox automation
 - improvements to documentation
-- improvements to :meth:`configaro.put`
+- improvements to :meth:`configaro.put` API
 
 Changes
 -------
@@ -79,7 +101,7 @@ Features
 0.9.0
 =====
 
-Initial release of package.
+Initial release of **configaro**.
 
 Features
 --------

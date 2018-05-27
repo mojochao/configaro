@@ -10,12 +10,12 @@ Overview
 What is it?
 -----------
 
-``configaro`` is a Python 3 configuration library that's music to your ears.
+**configaro** is a Python 3 configuration library that's music to your ears.
 
 Why should I care?
 ------------------
 
-``configaro`` has been created with the following design goals in mind:
+**configaro** has been created with the following design goals in mind:
 
     - provide a single file library with minimal dependencies
     - provide one with a simple, expressive API that is easy to use and gets out of your way
@@ -49,8 +49,7 @@ What about Python 2?
 --------------------
 
 I have zero interest in supporting Python 2 at this point.  If you are still
-using Python 2 then move along -- there's nothing to see here.  Fork this repo
-if you like and submit a pull request.
+using Python 2 then move along -- there's nothing to see here.
 
 ..  toctree::
     :maxdepth: 2

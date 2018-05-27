@@ -1,13 +1,9 @@
-# Single files or matchable globs
+include *.cfg
 include *.ini
+include *.json
 include *.md
 include *.rst
 include *.txt
-
-# Add desired directories
-graft configaro
+global-exclude *.py[co]
 graft docs
 graft tests
-
-# Remove unwanted files
-global-exclude *.py[co]

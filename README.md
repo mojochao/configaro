@@ -4,7 +4,7 @@ configaro configuration library
 What is it?
 -----------
 
-`configaro` is a configuration library for Python 3 that's music to your ears.
+`configaro` is a Python 3 configuration library that's music to your ears.
 
 Why should I care?
 ------------------
@@ -42,8 +42,7 @@ What about Python 2?
 --------------------
 
 I have zero interest in supporting Python 2 at this point.  If you are still
-using Python 2 then move along -- there's nothing to see here.  Fork it if you
-like and submit a pull request.
+using Python 2 then move along -- there's nothing to see here.
 
 Installation
 ------------

@@ -3,7 +3,6 @@ import os
 import munch
 import pytest
 
-
 CONFIG_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), 'config'))
 
 SAMPLE_DATA = {
@@ -99,7 +98,7 @@ def test__get():
     assert _get(data, 'monitoring.nginx.disabled') is True
     with pytest.raises(PropertyNotFoundError):
         assert _get(data, 'monitoring.nginx.disable') is True
-    assert _get(data, 'monitoring.nginx.disable', not_found=None) is None
+    assert _get(data, 'monitoring.nginx.disable', default=None) is None
 
 
 def test__put():
@@ -199,7 +198,7 @@ def test_get():
     assert get('monitoring.nginx.disabled') is True
     with pytest.raises(PropertyNotFoundError):
         assert get('monitoring.nginx.disable') is True
-    assert get('monitoring.nginx.disable', not_found=None) is None
+    assert get('monitoring.nginx.disable', default=None) is None
 
 
 def test_put():

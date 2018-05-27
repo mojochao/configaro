@@ -3,48 +3,65 @@
 Usage
 =====
 
+Understand configaro
+--------------------
+
+**configaro** provides a **config object** loaded from a *defaults*
+**config module** in the **config package**, and a *locals*
+**config module** in the **config package** or other directory.
+
+A **config package** is the name of a Python package to search for
+*defaults* and *locals* **config modules**.
+
+A **config module** is a Python module containing **config data** in a
+:class:`dict` module attribute named *config*. Values found in a *locals*
+**config module** will override those found in the *defaults* **config module**.
+
+A **config object** is a `dot-addressable dict <https://github.com/Infinidat/munch>`_
+containing **config data**.  The config object is built by calling the
+:meth:`configaro.init` API.  After initialization the config object, or any
+portion of it, may be queried with the :meth:`configaro.get` API or modified
+with the :meth:`configaro.put` API.
+
 Add configaro to your project
 -----------------------------
 
-``configaro`` must be added to your project before use.
+**configaro** must be added to your project before use.
 
-If using `pipenv <https://docs.pipenv.org/>`_::
+Add the package dependency using `pipenv <https://docs.pipenv.org/>`_::
 
     $ cd ~/projects/demo_prj
     $ pipenv install configaro
 
-Alternatively, add the ``configaro`` package to your ``requirements.txt`` file
-and ``pip`` install it into your Python 3 environment::
+Alternatively, add it to your ``requirements.txt`` file and ``pip`` install
+it into your Python environment::
 
     $ pip install -r requirements.txt
 
 Add defaults config module
 --------------------------
 
-``configaro`` loads config modules containing a ``config`` object dict attribute.
-
-Add a ``config`` package to your project.  Assuming the ``demo_prj``
-project has a top-level ``demo_pkg`` package, you should create a ``config``
-directory underneath it::
+If a ``demo_prj`` project contains a ``demo_pkg`` package, create a
+``demo_prj/demo_pkg/config`` config package directory::
 
     $ mkdir demo_pkg/config
 
-Create a ``defaults.py`` config module in the created directory containing::
+Create a ``demo_pkgr/config/defaults.py`` config module in that directory::
 
-    # demo_prj/config/defaults.py
+    $ cat >> demo_pkg/config/defaults.py << EOF
     config = {
         'greeting': 'hello',
-        'subject': 'world'
+        'subject': {
+            'first_name': 'Joe',
+            'last_name': 'World'
+        }
     }
-
-..  note::
-
-    Although this config object is flat, hierarchical configuration is supported.
+    EOF
 
 Initialize the library
 ----------------------
 
-In your code, initialize the ``configaro`` library with the ``init()``
+In your code, initialize the **configaro** library with the :meth:`configaro.init`
 API and the name of your config package::
 
     import configaro
@@ -53,13 +70,15 @@ API and the name of your config package::
 Query configuration
 -------------------
 
-Query the whole configuration with the ``get`` api::
+Query the config object with the :meth:`configaro.get` API::
 
     config = configaro.get()
     print(f'{config.greeting}, {config.subject}!')
 
-Notice that you config properties are dot-addressable.  This is much handier
-than using dict-style square-brackets lookups.
+..  note::
+
+    Config properties are dot-addressable.  This is more convenient
+    than using dict-style ``data['prop']`` access, however that works as well.
 
 You can grab a specific sub-configuration by passing in the name of a
 specific property to query::
@@ -73,57 +92,54 @@ You can query multiple specific properties at one time::
     greeting, subject = configaro.get('greeting', 'subject')
     print(f'{greeting}, {subject}!')
 
-Configurations may be hierarchical.  Assume a ``myproj/config/defaults.py``
-module containing the following::
-
-    config = {
-        'greeting': 'hello',
-        'subject': {
-            'first_name': 'Joe',
-            'last_name': 'World'
-        }
-    }
-
-You can grab the entire subject config with::
+You can grab the entire subject config data by its property name::
 
     configaro.get('subject')
 
-Or just a scalar leaf-node configuration value with::
+You can grab a nested config value with its dot-addressed property name::
 
     configaro.get('subject.first_name')
 
 Modify configuration
 --------------------
 
-Any scalar leaf-node configuration property that exists in the defaults config
-module may be updated::
+Modify the config object with the :meth:`configaro.put` api::
 
     configaro.put('subject.first_name=Jane')
 
-If you are not using hierarchical configuration data, you can use the keyword
+If you are not modifying hierarchical config data, you can use the keyword
 args invocation::
 
     configaro.put(greeting='Aloha')
 
-This will not work with hierarchical configuration data as the dot character is
-not valid in keyword args.  Note that hyphens are also not allowed in keyword args.
-
-Overriding defaults with locals
--------------------------------
-
-The configuration defaults can be overridden with configuration locals.  These
-locals can come from one of three sources:
-
-- a locals config module path passed to :meth:`configaro.init`
-- a locals config module path specified by environment variable name passed in at :meth:`configaro.init` time
-- a locals config module path found in the config package passed in at :meth:`configaro.init` time
-
-Any values found in the locals configuration object will override those found in
-the defaults configuration object.
-
 ..  note::
 
-    If you use a locals config module in the config package path, ensure that
-    you add that path to your ``.gitignore`` file, otherwise it will always be
-    present everywhere, effectively becoming a second defaults module.
+    This will not work with hierarchical config data as the *dot*, or ``.``,
+    character is not valid in keyword args as key names must be valid Python
+    names.
+
+    The *hyphen*, or ``-``, character is similarly not allowed in keyword args.
+    Save yourself some pain and use the *underscore*, or ``_``, character instead.
+
+Add locals config module
+------------------------
+
+The config data found in the *defaults* config module can be overridden with
+config data found in the *locals* config module.  The *locals* config module
+can be loaded from one of three sources, in precedence order from highest to
+lowest:
+
+- a locals config module path passed to :meth:`configaro.init` API
+- a locals config module path specified by environment variable name passed to :meth:`configaro.init` API
+- a locals config module path found in the config package passed to :meth:`configaro.init` API
+
+If no *locals* config module is found, the config object will contain only
+the *defaults* config module's config data.
+
+..  warning::
+
+    If you use a ``locals.py`` config module in the config package directory,
+    ensure that you add its file path to your ``.gitignore`` file, otherwise
+    it will always be found, effectively becoming a second *defaults* config
+    module.
 

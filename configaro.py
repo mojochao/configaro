@@ -1,6 +1,8 @@
 """Configaro configuration library.
 
-``configaro`` has been created with the following design goals in mind:
+**configaro** is a Python 3 configuration library that's music to your ears.
+
+It has been created with the following design goals in mind:
 
     - provide a single file library with minimal dependencies
     - provide one with a simple, expressive API that is easy to use and gets out of your way
@@ -27,6 +29,9 @@ If this sounds appealing to you, take a look::
     cfg.put(greeting='Goodbye', subject='Folks'}
     cfg.put({'greeting': 'Goodbye', 'subject': 'Folks'})
     cfg.put('greeting=Goodbye subject=Folks')
+
+I have zero interest in supporting Python 2 at this point.  If you are still
+using Python 2 then move along -- there's nothing to see here.
 
 """
 import ast
@@ -136,17 +141,28 @@ class UpdateNotValidError(ConfigaroError):
 # ---------------------------------------------------------------------------
 
 def init(config_package, locals_path=None, locals_env_var=None):
-    """Initialize configuration.
+    """Initialize the config object.
 
-    The configuration must be initialized before use.
+    The config object must be initialized before use and is built from one or
+    two config modules.  A config module is simply any Python module with a
+    module attribute named **config**.  The config object loaded from the
+    **defaults** config module, as well as any **locals** config module found.
 
-    The required *config_package* argument is used to define the package in
-    which the ``defaults.py`` config module is loaded from::
+    The **defaults** config module is always loaded.  The required *config_package*
+    argument is used to define the package in which the **defaults** config
+    module, named ``defaults.py``, is loaded from::
 
         init('my_pkg.config')
 
-    If no other options are provided, the ``locals.py`` config module, if it
-    exists, will be loaded from there as well.
+    The **locals** config module is loaded, next if it exists, from the following
+    locations, in precedence order from highest to lowest::
+
+    - one found at path specified by locals env var
+    - one found at path specified by locals path
+    - one found in config package
+
+    If no other options are provided, the **locals** config module will be loaded,
+    if it exists, from the *config_package*.
 
     If the optional *locals_path* argument is provided it will be used, if it
     exists, instead of any ``locals.py`` config module in the config package::
@@ -159,12 +175,8 @@ def init(config_package, locals_path=None, locals_env_var=None):
 
         init('my_pkg.config', locals_env_var='MY_PKG_CONFIG_LOCALS')
 
-    Both a locals path and a locals env var may be provided.  Precedence order
-    of locals config module resolution from highest to lowest include:
-
-    - one found at path specified by locals env var
-    - one found at path specified by locals path
-    - one found in config package
+    If the *locals_env_var* argument is not provided the ``CONFIGARO_LOCALS``
+    environment variable name will be used instead.
 
     Repeated initialization has no effect.  You can not re-initialize with
     different values.
@@ -187,28 +199,30 @@ def init(config_package, locals_path=None, locals_env_var=None):
 
 
 def get(*prop_names, **kwargs):
-    """Get configuration values.
+    """Get config values.
 
-    If no *prop_names* are provided, returns the config root object::
+    The config object must be initialized before use.
+
+    If no *prop_names* are provided, returns the config root config object::
 
         config = get()
 
-    If one property name is provided, returns that config sub-object::
+    If one property name is provided, returns that sub config object::
 
         prop = get('prop')
 
-    If multiple property names are provided, returns a tuple of config sub-objects::
+    If multiple property names are provided, returns a tuple of sub config objects::
 
         prop1, prop2 = get('prop1', 'prop2')
 
-    Multiple names can also be provided in a single string argument as well::
+    Multiple property names can also be provided in a single string argument as well::
 
         prop1, prop2 = get('prop1 prop2')
 
-    If property name is not found, raises configaro.PropertyNotFoundError, unless
-    a *not_found* keyword argument is provided::
+    If a property name is not found, configaro.PropertyNotFoundError is raised,
+    unless a *default* keyword argument is provided::
 
-        prop = get('prop', not_found=None)
+        prop = get('prop', default=None)
 
     Args:
         prop_names (List[str]): config property names
@@ -233,17 +247,25 @@ def get(*prop_names, **kwargs):
 
 
 def put(*args, **kwargs):
-    """Put configuration values.
+    """Put config values.
 
-    This function supports three styles of usage.
+    The config object must be initialized before use.
 
-    First, the entire config object can be updated with a single dict argument::
+    This function supports many expressive styles of usage.
+
+    The entire config object can be updated with a single dict data argument::
 
         put({'prop_a': True, 'prop_b': 23})
 
-    Second, updates can also be specified by name=value update strings.  If
-    one or more string arguments are passed, the updates described by those
-    update strings will be applied to the config object::
+    Similarly, any sub config object can be updated with a string property and
+    dict data argument::
+
+        put(prop={'prop_a': True, 'prop_b': 23})
+        put('nested.prop', {'prop_a': True, 'prop_b': 23})
+
+    Updates can also be specified by ``name=value`` update strings.  If one or
+    more string arguments are passed, the updates described by those update
+    strings will be applied to the config object::
 
         put('prop_a=True')
         put('prop_b=23')
@@ -256,8 +278,8 @@ def put(*args, **kwargs):
 
         put('prop_a=True prop.nested=awesome')
 
-    Third, if you are using accessing root config properties you can use
-    keyword arguments::
+    If you are updating root config properties you can simply use keyword
+    arguments::
 
         put(prop_a=True, prop_d={'greeting': 'Hello', 'subject': 'world'})
 
@@ -429,14 +451,14 @@ def _get(data, prop_name, **kwargs):
         munch.Munch: config value
 
     Raises:
-        configaro.PropertyNotFoundError: if property is not found and *not_found* keyword arg is not present
+        configaro.PropertyNotFoundError: if property is not found and *default* keyword arg is not present
 
     """
     try:
         return eval(f'data.{prop_name}')  # NOTE: do not remove the 'data' parameter in function as it is used here!
     except AttributeError:
         try:
-            return kwargs['not_found']
+            return kwargs['default']
         except KeyError:
             raise PropertyNotFoundError(data, prop_name)
 

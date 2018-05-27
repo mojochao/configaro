@@ -3,7 +3,7 @@
 API
 ===
 
-``configaro`` is provided as a single module.
+**configaro** is provided as a single module.
 
 It has a spartan set of three APIs:
 
