@@ -1,6 +1,7 @@
 -r requirements.txt
 coverage
 detox
+fabric
 pep8
 pytest
 pytest-cov

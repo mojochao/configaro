@@ -22,10 +22,6 @@ SAMPLE_DATA = {
 }
 
 
-# ---------------------------------------------------------------------------
-# test internals
-# ---------------------------------------------------------------------------
-
 def test__module_path():
     from configaro import _module_path
     assert _module_path(CONFIG_DIR, 'defaults') == os.path.join(CONFIG_DIR, 'defaults.py')
@@ -90,13 +86,13 @@ def test__cast():
 
 
 def test__get():
-    from configaro import PropertyNotFoundError, _get
+    from configaro import ConfigPropertyNotFoundError, _get
     data = munch.munchify(SAMPLE_DATA)
     assert _get(data, 'name') == 'defaults'
     assert _get(data, 'log.level') == 'ERROR'
     assert _get(data, 'monitoring.haproxy.disabled') is False
     assert _get(data, 'monitoring.nginx.disabled') is True
-    with pytest.raises(PropertyNotFoundError):
+    with pytest.raises(ConfigPropertyNotFoundError):
         assert _get(data, 'monitoring.nginx.disable') is True
     assert _get(data, 'monitoring.nginx.disable', default=None) is None
 
@@ -112,7 +108,7 @@ def test__put():
 
 def test__config_package_dir():
     from configaro import _config_package_dir
-    assert _config_package_dir() == CONFIG_DIR
+    assert _config_package_dir('tests.config') == CONFIG_DIR
 
 
 def test___config_module_paths():
@@ -121,40 +117,20 @@ def test___config_module_paths():
         os.path.join(CONFIG_DIR, 'defaults.py'),
         os.path.join(CONFIG_DIR, 'locals.py'),
     ]
-    paths = _config_module_paths()
+    paths = _config_module_paths('tests.config')
     assert sorted(paths) == sorted(expected)
-
-
-def test__config_data():
-    from configaro import _config_data
-    data = _config_data()
-    assert data
-    assert isinstance(data, dict)
-
-
-def test__ensure_initialized():
-    from configaro import NotInitializedError, init, _ensure_initialized
-    with pytest.raises(NotInitializedError):
-        _ensure_initialized()
-    init('tests.config')
-    _ensure_initialized()
-
-
-# ---------------------------------------------------------------------------
-# test public interface
-# ---------------------------------------------------------------------------
 
 
 def test_exports():
     from configaro import __all__ as exports
     expected = [
-        'ConfigaroError',
-        'ConfigNotFoundError',
-        'ConfigNotValidError',
-        'NotInitializedError',
-        'PropertyNotFoundError',
-        'PropertyNotScalarError',
-        'UpdateNotValidError',
+        'ConfigError',
+        'ConfigModuleNotFoundError',
+        'ConfigModuleNotValidError',
+        'ConfigObjectNotInitialized',
+        'ConfigPropertyNotFoundError',
+        'ConfigPropertyNotScalarError',
+        'ConfigUpdateNotValidError',
         'get',
         'init',
         'put',
@@ -168,7 +144,7 @@ def test_initialize():
 
 
 def test_get():
-    from configaro import PropertyNotFoundError, get, init
+    from configaro import ConfigPropertyNotFoundError, get, init
     init('tests.config')
     expected = {
         'name': 'locals',
@@ -196,96 +172,96 @@ def test_get():
     assert get('log.level') == 'DEBUG'
     assert get('monitoring.haproxy.disabled') is True
     assert get('monitoring.nginx.disabled') is True
-    with pytest.raises(PropertyNotFoundError):
+    with pytest.raises(ConfigPropertyNotFoundError):
         assert get('monitoring.nginx.disable') is True
     assert get('monitoring.nginx.disable', default=None) is None
 
 
 def test_put():
-    from configaro import PropertyNotScalarError, UpdateNotValidError, get, init, put
+    from configaro import ConfigPropertyNotScalarError, ConfigUpdateNotValidError, get, init, put
     init('tests.config')
     put('log.level=INFO')
     config = get()
     assert config.log.level == 'INFO'
     # ensure that we cannot put with a malformed arg
-    with pytest.raises(UpdateNotValidError):
+    with pytest.raises(ConfigUpdateNotValidError):
         put('log.level')
     # ensure that we cannot put a non-scalar
-    with pytest.raises(PropertyNotScalarError):
+    with pytest.raises(ConfigPropertyNotScalarError):
         put('log=INFO')
 
 
 def test_ConfigaroError():
-    from configaro import ConfigaroError
+    from configaro import ConfigError
     message = 'this is an error'
-    error = ConfigaroError(message)
+    error = ConfigError(message)
     assert error.message == message
 
 
 def test_NotInitializedError():
-    from configaro import ConfigaroError, NotInitializedError
-    error = NotInitializedError()
-    assert isinstance(error, ConfigaroError)
-    assert error.message == 'configaro library uninitialized'
+    from configaro import ConfigError, ConfigObjectNotInitialized
+    error = ConfigObjectNotInitialized()
+    assert isinstance(error, ConfigError)
+    assert error.message == 'config object not initialized'
 
 
 def test_ConfigNotFoundError():
-    from configaro import ConfigaroError, ConfigNotFoundError
+    from configaro import ConfigError, ConfigModuleNotFoundError
     path = '/some/path'
-    error = ConfigNotFoundError(path)
-    assert isinstance(error, ConfigaroError)
+    error = ConfigModuleNotFoundError(path)
+    assert isinstance(error, ConfigError)
     assert error.message == f'config module not found: {path}'
     assert error.path == path
     path = '/another/path'
-    error = ConfigNotFoundError(path=path)
+    error = ConfigModuleNotFoundError(path=path)
     assert error.path == path
 
 
 def test_ConfigNotValidError():
-    from configaro import ConfigaroError, ConfigNotValidError
+    from configaro import ConfigError, ConfigModuleNotValidError
     path = '/some/path'
-    error = ConfigNotValidError(path)
-    assert isinstance(error, ConfigaroError)
+    error = ConfigModuleNotValidError(path)
+    assert isinstance(error, ConfigError)
     assert error.message == f'config module not valid: {path}'
     assert error.path == path
-    error = ConfigNotValidError(path=path)
+    error = ConfigModuleNotValidError(path=path)
     assert error.path == path
 
 
 def test_PropertyNotFoundError():
-    from configaro import ConfigaroError, PropertyNotFoundError
+    from configaro import ConfigError, ConfigPropertyNotFoundError
     data = None
     prop_name = 'prop.inner'
-    error = PropertyNotFoundError(data, prop_name)
-    assert isinstance(error, ConfigaroError)
+    error = ConfigPropertyNotFoundError(data, prop_name)
+    assert isinstance(error, ConfigError)
     assert error.message == f'config property not found: {prop_name}'
     assert error.data == data
     assert error.prop_name == prop_name
-    error = PropertyNotFoundError(prop_name=prop_name, data=data)
+    error = ConfigPropertyNotFoundError(prop_name=prop_name, data=data)
     assert error.data == data
     assert error.prop_name == prop_name
 
 
 def test_PropertyNotScalarError():
-    from configaro import ConfigaroError, PropertyNotScalarError
+    from configaro import ConfigError, ConfigPropertyNotScalarError
     data = None
     prop_name = 'prop.inner'
-    error = PropertyNotScalarError(data, prop_name)
-    assert isinstance(error, ConfigaroError)
+    error = ConfigPropertyNotScalarError(data, prop_name)
+    assert isinstance(error, ConfigError)
     assert error.message == f'config property not scalar: {prop_name}'
     assert error.data == data
     assert error.prop_name == prop_name
-    error = PropertyNotScalarError(prop_name=prop_name, data=data)
+    error = ConfigPropertyNotScalarError(prop_name=prop_name, data=data)
     assert error.data == data
     assert error.prop_name == prop_name
 
 
 def test_UpdateNotValidError():
-    from configaro import ConfigaroError, UpdateNotValidError
+    from configaro import ConfigError, ConfigUpdateNotValidError
     update = 'prop=value'
-    error = UpdateNotValidError(update)
-    assert isinstance(error, ConfigaroError)
+    error = ConfigUpdateNotValidError(update)
+    assert isinstance(error, ConfigError)
     assert error.message == f'config update not valid: {update}'
     assert error.update == update
-    error = UpdateNotValidError(update=update)
+    error = ConfigUpdateNotValidError(update=update)
     assert error.update == update

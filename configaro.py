@@ -28,8 +28,32 @@ If this sounds appealing to you, take a look::
     cfg.put({'greeting': 'Goodbye', 'subject': 'Folks'})
     cfg.put('greeting=Goodbye subject=Folks')
 
-I have zero interest in supporting Python 2 at this point.  If you are still
-using Python 2 then move along -- there's nothing to see here.
+Concepts
+--------
+
+**configaro** provides a **config object** loaded from a *defaults*
+**config module** in the **config package** and an optional *locals*
+**config module** in the **config package** or other directory.
+
+A **config package** is the name of a Python package to search for
+*defaults* and *locals* **config modules**.
+
+A **config module** is a Python module containing **config data** in a
+:class:`dict` module attribute named *config*. Values found in a *locals*
+**config module** will override those found in the *defaults* **config module**.
+
+A **config object** is a `dot-addressable dict <https://github.com/Infinidat/munch>`_
+containing **config data** loaded from a *defaults* and optional *locals*
+**config modules**.  The config object is built by calling the :meth:`configaro.init`
+API.  After initialization the config object, or any portion of it, may be
+queried with the :meth:`configaro.get` API or modified with the
+:meth:`configaro.put` API.
+
+A **config property** is a string identifying a config object or config
+config value in a dot-addressable format, such as ``inner.prop``.
+
+A **config value** is a scalar value of some type, typically *None*, *bool*,
+*float*, *int* or *str* type, accessed by **config property**.
 
 """
 import ast
@@ -41,104 +65,83 @@ from importlib.abc import FileLoader, SourceLoader
 import munch
 
 __all__ = [
-    'ConfigaroError',
-    'ConfigNotFoundError',
-    'ConfigNotValidError',
-    'NotInitializedError',
-    'PropertyNotFoundError',
-    'PropertyNotScalarError',
-    'UpdateNotValidError',
+    'ConfigError',
+    'ConfigModuleNotFoundError',
+    'ConfigModuleNotValidError',
+    'ConfigObjectNotInitialized',
+    'ConfigPropertyNotFoundError',
+    'ConfigPropertyNotScalarError',
+    'ConfigUpdateNotValidError',
     'get',
     'init',
     'put',
 ]
 
 
-# ---------------------------------------------------------------------------
-# Constants.
-# ---------------------------------------------------------------------------
+DEFAULTS_CONFIG_MODULE_NAME = 'defaults'
+LOCALS_CONFIG_MODULE_NAME = 'locals'
+LOCALS_ENV_VAR = 'CONFIGARO_LOCALS_MODULE'
 
-DEFAULT_LOCALS_ENV_VAR = 'CONFIGARO_LOCALS_MODULE'
-DEFAULTS_CONFIG_MODULE = 'defaults'
-LOCALS_CONFIG_MODULE = 'locals'
-
-
-# ---------------------------------------------------------------------------
-# Mutable global state.
-# ---------------------------------------------------------------------------
-
-_INITIALIZED = False
 _CONFIG_DATA = {}
-_CONFIG_PACKAGE = None
-_LOCALS_ENV_VAR = None
-_LOCALS_PATH = None
 
 
-# ---------------------------------------------------------------------------
-# Error types
-# ---------------------------------------------------------------------------
-
-class ConfigaroError(BaseException):
+class ConfigError(BaseException):
     """Base library exception class."""
 
-    def __init__(self, message):
+    def __init__(self, message=None):
         self.message = message
 
 
-class NotInitializedError(ConfigaroError):
+class ConfigObjectNotInitialized(ConfigError):
     """Config object not initialized error."""
 
     def __init__(self):
         super().__init__('config object not initialized')
 
 
-class ConfigNotFoundError(ConfigaroError):
+class ConfigModuleNotFoundError(ConfigError):
     """Config module not found error."""
 
-    def __init__(self, path):
+    def __init__(self, path=None):
         super().__init__(f'config module not found: {path}')
         self.path = path
 
 
-class ConfigNotValidError(ConfigaroError):
+class ConfigModuleNotValidError(ConfigError):
     """Config module does not contain a 'config' attribute of 'dict' type error."""
 
-    def __init__(self, path):
+    def __init__(self, path=None):
         super().__init__(f'config module not valid: {path}')
         self.path = path
 
 
-class PropertyNotFoundError(ConfigaroError):
+class ConfigPropertyNotFoundError(ConfigError):
     """Config property not found error."""
 
-    def __init__(self, data, prop_name):
+    def __init__(self, data=None, prop_name=None):
         super().__init__(f'config property not found: {prop_name}')
         self.data = data
         self.prop_name = prop_name
 
 
-class PropertyNotScalarError(ConfigaroError):
+class ConfigPropertyNotScalarError(ConfigError):
     """Config property not scalar error."""
 
-    def __init__(self, data, prop_name):
+    def __init__(self, data=None, prop_name=None):
         super().__init__(f'config property not scalar: {prop_name}')
         self.data = data
         self.prop_name = prop_name
 
 
-class UpdateNotValidError(ConfigaroError):
+class ConfigUpdateNotValidError(ConfigError):
     """Config update not valid error."""
 
-    def __init__(self, update):
+    def __init__(self, update=None):
         super().__init__(f'config update not valid: {update}')
         self.update = update
 
 
-# ---------------------------------------------------------------------------
-# External API.
-# ---------------------------------------------------------------------------
-
-def init(config_package, locals_path=None, locals_env_var=None):
+def init(config_package, locals_path=None, locals_env_var=LOCALS_ENV_VAR):
     """Initialize the config object.
 
     The config object must be initialized before use and is built from one or
@@ -185,15 +188,15 @@ def init(config_package, locals_path=None, locals_env_var=None):
         locals_env_var (str): name of environment variable providing path to locals config module
 
     """
-    global _INITIALIZED
-    if not _INITIALIZED:
-        global _CONFIG_PACKAGE
-        _CONFIG_PACKAGE = config_package
-        global _LOCALS_PATH
-        _LOCALS_PATH = locals_path
-        global _LOCALS_ENV_VAR
-        _LOCALS_ENV_VAR = locals_env_var
-        _INITIALIZED = True
+    global _CONFIG_DATA
+    if _CONFIG_DATA:
+        return
+
+    for path in _config_module_paths(config_package, locals_path, locals_env_var):
+        deltas = _load(path)
+        merged = dict(_merge(_CONFIG_DATA, deltas))
+        _CONFIG_DATA = merged
+    _CONFIG_DATA = munch.munchify(_CONFIG_DATA)
 
 
 def get(*prop_names, **kwargs):
@@ -217,7 +220,7 @@ def get(*prop_names, **kwargs):
 
         prop1, prop2 = get('prop1 prop2')
 
-    If a property name is not found, configaro.PropertyNotFoundError is raised,
+    If a property name is not found, configaro.ConfigPropertyNotFoundError is raised,
     unless a *default* keyword argument is provided::
 
         prop = get('prop', default=None)
@@ -231,17 +234,18 @@ def get(*prop_names, **kwargs):
 
     Raises:
         configaro.NotInitialized: if library has not been initialized
-        configaro.PropertyNotFoundError: if a property in *prop_names* is not found
+        configaro.ConfigPropertyNotFoundError: if a property in *prop_names* is not found
 
     """
-    _ensure_initialized()
-    data = _config_data()
+    if not _CONFIG_DATA:
+        raise ConfigObjectNotInitialized()
+
     if not prop_names:
-        return data
+        return _CONFIG_DATA
     elif len(prop_names) == 1:
-        return _get(data, prop_names[0], **kwargs)
+        return _get(_CONFIG_DATA, prop_names[0], **kwargs)
     else:
-        return tuple([_get(data, arg, **kwargs) for arg in prop_names])
+        return tuple([_get(_CONFIG_DATA, arg, **kwargs) for arg in prop_names])
 
 
 def put(*args, **kwargs):
@@ -286,22 +290,22 @@ def put(*args, **kwargs):
         kwargs (Dict[str, Any]): config update keyword args
 
     Raises:
-        configaro.NotInitializedError: if library has not been initialized
-        configaro.PropertyNotScalarError: if property is not a scalar
-        configaro.UpdateNotValidError: if update string is not valid
+        configaro.ConfigObjectNotInitialized: if library has not been initialized
+        configaro.ConfigPropertyNotScalarError: if property is not a scalar
+        configaro.ConfigUpdateNotValidError: if update string is not valid
 
     """
-    _ensure_initialized()
-    data = _config_data()
+    if not _CONFIG_DATA:
+        raise ConfigObjectNotInitialized()
 
     # Handle passing in a single dict arg.
     if len(args) == 1 and isinstance(args[0], dict):
-        data.update(args[0])
+        _CONFIG_DATA.update(args[0])
         return
 
     # Handle passing in a prop name and an update value of any sort other than string.
     if len(args) == 2 and isinstance(args[0], str) and not isinstance(args[1], str):
-        _put(data, args[0], args[1])
+        _put(_CONFIG_DATA, args[0], args[1])
         return
 
     # Handle positional string arguments.  If the caller wishes to modify
@@ -315,85 +319,46 @@ def put(*args, **kwargs):
         try:
             name, value = arg.split('=')
             value = _cast(value)
-            _put(data, name, value)
+            _put(_CONFIG_DATA, name, value)
         except ValueError:
-            raise UpdateNotValidError(arg)
+            raise ConfigUpdateNotValidError(arg)
 
     # Handle any keyword arguments.  If the caller doesn't care about nested
     # property updates, property names and values may be passed in keyword args.
     for name, value in kwargs.items():
-        _put(data, name, value)
+        _put(_CONFIG_DATA, name, value)
 
 
-# ---------------------------------------------------------------------------
-# Internal API
-# ---------------------------------------------------------------------------
-
-def _ensure_initialized():
-    """Ensure library is initialized.
-
-    Raises:
-        configaro.NotInitializedError: if library has not been initialized
-
-    """
-    if not _INITIALIZED:
-        raise NotInitializedError()
-
-
-def _config_data():
-    """Composed configuration data accessor.
-
-    Returns:
-        Dict[str, Any]: composed config data
-
-    """
-    global _CONFIG_DATA
-    if not _CONFIG_DATA:
-        for path in _config_module_paths():
-            deltas = _load(path)
-            merged = dict(_merge(_CONFIG_DATA, deltas))
-            _CONFIG_DATA = merged
-        _CONFIG_DATA = munch.munchify(_CONFIG_DATA)
-    return _CONFIG_DATA
-
-
-def _config_module_paths():
+def _config_module_paths(config_package, locals_path=None, locals_env_var=LOCALS_ENV_VAR):
     """Configuration module paths accessor.
 
     Returns:
         List[str]: configuration module paths
 
     Raises:
-        configaro.ConfigNotFoundError: if config file not found
+        configaro.ConfigModuleNotFoundError: if config file not found
 
     """
     config_paths = []
-    package_dir = _config_package_dir()
+    package_dir = _config_package_dir(config_package)
 
     # Start by using 'defaults' module from the config package.
-    defaults_path = os.path.join(package_dir, f'{DEFAULTS_CONFIG_MODULE}.py')
+    defaults_path = os.path.join(package_dir, f'{DEFAULTS_CONFIG_MODULE_NAME}.py')
     if not os.path.exists(defaults_path):
-        raise ConfigNotFoundError(defaults_path)
+        raise ConfigModuleNotFoundError(defaults_path)
     config_paths.append(defaults_path)
 
-    # Continue by adding 'locals' module.
-    # One specified as file takes highest precedence.
-    if _LOCALS_PATH:
-        locals_path = _LOCALS_PATH
-    # One specified in environment variable takes next highest precedence.
-    elif _LOCALS_ENV_VAR:
-        locals_path = os.environ.get(_LOCALS_ENV_VAR)
-    # Finish if necessary by using 'locals' module in the config package.
-    else:
-        locals_path = os.path.join(package_dir, f'{LOCALS_CONFIG_MODULE}.py')
-    if not os.path.exists(locals_path):
-        raise ConfigNotFoundError(locals_path)
-    config_paths.append(locals_path)
-
+    # Continue by adding any 'locals' module.
+    if not locals_path:
+        locals_path = os.environ.get(locals_env_var) or os.path.join(package_dir, f'{LOCALS_CONFIG_MODULE_NAME}.py')
+    if locals_path:
+        if not os.path.exists(locals_path):
+            raise ConfigModuleNotFoundError(locals_path)
+        config_paths.append(locals_path)
     return config_paths
 
 
-def _config_package_dir():
+def _config_package_dir(config_package):
     """Configuration package directory accessor.
 
     Returns:
@@ -403,7 +368,7 @@ def _config_package_dir():
         ImportError: if config package defaults cannot be loaded.
 
     """
-    module = import_module('defaults', _CONFIG_PACKAGE)
+    module = import_module('defaults', config_package)
     return os.path.dirname(module.__file__)
 
 
@@ -449,7 +414,7 @@ def _get(data, prop_name, **kwargs):
         munch.Munch: config value
 
     Raises:
-        configaro.PropertyNotFoundError: if property is not found and *default* keyword arg is not present
+        configaro.ConfigPropertyNotFoundError: if property is not found and *default* keyword arg is not present
 
     """
     try:
@@ -458,7 +423,7 @@ def _get(data, prop_name, **kwargs):
         try:
             return kwargs['default']
         except KeyError:
-            raise PropertyNotFoundError(data, prop_name)
+            raise ConfigPropertyNotFoundError(data, prop_name)
 
 
 def _put(data, prop_name, prop_value):
@@ -470,8 +435,8 @@ def _put(data, prop_name, prop_value):
         prop_value (Any): config value
 
     Raises:
-        configaro.PropertyNotFoundError: if config property is not found
-        configaro.PropertyNotScalarError: if config property is not scalar and non-dict value is provided
+        configaro.ConfigPropertyNotFoundError: if config property is not found
+        configaro.ConfigPropertyNotScalarError: if config property is not scalar and non-dict value is provided
 
     """
     from munch import Munch
@@ -483,7 +448,7 @@ def _put(data, prop_name, prop_value):
     else:
         config = data
     if isinstance(config[prop_name], Munch) and not isinstance(prop_value, dict):
-        raise PropertyNotScalarError(config, prop_name)
+        raise ConfigPropertyNotScalarError(config, prop_name)
     config[prop_name] = prop_value
 
 
@@ -498,7 +463,7 @@ def _load(path):
 
     Raises:
         ImportError: if module cannot be imported
-        configaro.ConfigNotValidError is module does not contain a 'config' dict attribute.
+        configaro.ConfigModuleNotValidError is module does not contain a 'config' dict attribute.
 
     """
     module_dir = os.path.dirname(path)
@@ -506,10 +471,10 @@ def _load(path):
     module = _import_module(module_dir, module_name)
     try:
         if not isinstance(module.config, dict):
-            raise ConfigNotValidError(path)
+            raise ConfigModuleNotValidError(path)
         return module.config
     except AttributeError:
-        raise ConfigNotValidError(path)
+        raise ConfigModuleNotValidError(path)
 
 
 def _merge(original, deltas):

@@ -7,7 +7,7 @@ Understand configaro
 --------------------
 
 **configaro** provides a **config object** loaded from a *defaults*
-**config module** in the **config package**, and a *locals*
+**config module** in the **config package** and an optional *locals*
 **config module** in the **config package** or other directory.
 
 A **config package** is the name of a Python package to search for
@@ -18,10 +18,11 @@ A **config module** is a Python module containing **config data** in a
 **config module** will override those found in the *defaults* **config module**.
 
 A **config object** is a `dot-addressable dict <https://github.com/Infinidat/munch>`_
-containing **config data**.  The config object is built by calling the
-:meth:`configaro.init` API.  After initialization the config object, or any
-portion of it, may be queried with the :meth:`configaro.get` API or modified
-with the :meth:`configaro.put` API.
+containing **config data** loaded from a *defaults* and optional *locals*
+**config modules**.  The config object is built by calling the :meth:`configaro.init`
+API.  After initialization the config object, or any portion of it, may be
+queried with the :meth:`configaro.get` API or modified with the
+:meth:`configaro.put` API.
 
 A **config property** is a string identifying a config object or config
 config value in a dot-addressable format, such as ``inner.prop``.
@@ -39,10 +40,10 @@ Add the package dependency using `pipenv <https://docs.pipenv.org/>`_::
     $ cd ~/projects/demo_prj
     $ pipenv install configaro
 
-Alternatively, add it to your ``requirements.txt`` file and ``pip`` install
+Alternatively, add it to your ``requirements.txt`` file and ``pip3`` install
 it into your Python environment::
 
-    $ pip install -r requirements.txt
+    $ pip3 install -r requirements.txt
 
 Add defaults config module
 --------------------------

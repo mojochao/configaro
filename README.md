@@ -4,12 +4,12 @@ configaro configuration library
 What is it?
 -----------
 
-`configaro` is a Python 3 configuration library that's music to your ears.
+**configaro** is a Python 3 configuration library that's music to your ears.
 
 Why should I care?
 ------------------
 
-`configaro` has been created with the following design goals in mind:
+**configaro** has been created with the following design goals in mind:
 
 - provide a single file library with minimal dependencies
 - provide one with a simple, expressive API that is easy to use and gets out of your way
@@ -47,18 +47,18 @@ using Python 2 then move along -- there's nothing to see here.
 Installation
 ------------
 
-`configaro` may be installed from the Python package index:
+**configaro** may be installed from the Python package index:
 
     $ pip3 install configaro
 
-`configaro` may also be installed from source:
+It may also be installed from source:
 
     $ git clone https://github.com/mojochao/configaro.git
     $ pip3 install .
 
 If you install from source with `.[dev]` you should be able to run tests:
 
-    $ pytest
+    $ tox
 
 Documentation
 -------------

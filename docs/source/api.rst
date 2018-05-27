@@ -3,23 +3,23 @@
 API
 ===
 
-**configaro** is provided as a single module.
-
-It has a spartan set of three APIs:
+Functions
+---------
 
 - :meth:`configaro.init`
 - :meth:`configaro.get`
 - :meth:`configaro.put`
 
-It also has several error classes:
+Errors
+------
 
-- :class:`configaro.ConfigaroError`
-- :class:`configaro.ConfigNotFoundError`
-- :class:`configaro.ConfigNotValidError`
-- :class:`configaro.NotInitializedError`
-- :class:`configaro.PropertyNotFoundError`
-- :class:`configaro.PropertyNotScalarError`
-- :class:`configaro.UpdateNotValidError`
+- :class:`configaro.ConfigError`
+- :class:`configaro.ConfigModuleNotFoundError`
+- :class:`configaro.ConfigModuleNotValidError`
+- :class:`configaro.ConfigObjectNotInitializedError`
+- :class:`configaro.ConfigPropertyNotFoundError`
+- :class:`configaro.ConfigPropertyNotScalarError`
+- :class:`configaro.ConfigUpdateNotValidError`
 
 ..  note::
 

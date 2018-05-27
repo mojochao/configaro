@@ -8,6 +8,18 @@ Changes
     :maxdepth: 2
     :caption: Contents:
 
+.. _configaro_release_0_9_9:
+
+0.9.9
+=====
+
+Changes
+-------
+
+- refactored error class names to match documentation
+- added sphinx doc builds to tox tests
+- added fab automation of dist build and upload to PyPI
+
 .. _configaro_release_0_9_8:
 
 0.9.8
