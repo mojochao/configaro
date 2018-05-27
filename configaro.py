@@ -305,10 +305,10 @@ def put(*args: str, **kwargs: str):
 
 
 def _config_module_paths(config_package: str, locals_path: str=None, locals_env_var: str=LOCALS_ENV_VAR) -> List[str]:
-    """Configuration module paths accessor.
+    """Config module paths accessor.
 
     Returns:
-        configuration module paths
+        config module paths
 
     Raises:
         configaro.ConfigModuleNotFoundError: if config file not found
@@ -334,10 +334,10 @@ def _config_module_paths(config_package: str, locals_path: str=None, locals_env_
 
 
 def _config_package_dir(config_package: str) -> str:
-    """Configuration package directory accessor.
+    """Config package directory accessor.
 
     Returns:
-        configuration package directory
+        config package directory
 
     Raises:
         ImportError: if config package defaults cannot be loaded.
@@ -428,7 +428,7 @@ def _put(data: Munch, prop_name: str, prop_value=Any):
 
 
 def _load(path: str) -> dict:
-    """Load configuration values from file.
+    """Load config values from file.
 
     Args:
         path: config file path
@@ -514,7 +514,7 @@ def _module_path(module_dir: str, module_name: str) -> str:
 
 
 class _ConfigLoader(FileLoader, SourceLoader):
-    """Configuration module loader class."""
+    """Config module loader class."""
 
     def get_code(self, fullname: str) -> CodeType:
         source = self.get_source(fullname)
