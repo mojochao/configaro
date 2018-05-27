@@ -23,6 +23,12 @@ containing **config data**.  The config object is built by calling the
 portion of it, may be queried with the :meth:`configaro.get` API or modified
 with the :meth:`configaro.put` API.
 
+A **config property** is a string identifying a config object or config
+config value in a dot-addressable format, such as ``inner.prop``.
+
+A **config value** is a scalar value of some type, typically None, bool,
+float, int or str, accessible by **config property**.
+
 Add configaro to your project
 -----------------------------
 

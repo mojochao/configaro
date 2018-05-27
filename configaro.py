@@ -88,14 +88,14 @@ class ConfigaroError(BaseException):
 
 
 class NotInitializedError(ConfigaroError):
-    """Config file not found error."""
+    """Config object not initialized error."""
 
     def __init__(self):
-        super().__init__('configaro library uninitialized')
+        super().__init__('config object not initialized')
 
 
 class ConfigNotFoundError(ConfigaroError):
-    """Module not found error."""
+    """Config module not found error."""
 
     def __init__(self, path):
         super().__init__(f'config module not found: {path}')
@@ -103,7 +103,7 @@ class ConfigNotFoundError(ConfigaroError):
 
 
 class ConfigNotValidError(ConfigaroError):
-    """Module does not contain a dict config attribute error."""
+    """Config module does not contain a 'config' attribute of 'dict' type error."""
 
     def __init__(self, path):
         super().__init__(f'config module not valid: {path}')
