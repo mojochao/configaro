@@ -34,8 +34,9 @@ import os
 import sys
 from importlib import import_module
 from importlib.abc import FileLoader, SourceLoader
+from typing import Any, List, Tuple, Union
 
-import munch
+from munch import Munch, munchify
 
 __all__ = [
     'ConfigError',
@@ -55,13 +56,13 @@ DEFAULTS_CONFIG_MODULE_NAME = 'defaults'
 LOCALS_CONFIG_MODULE_NAME = 'locals'
 LOCALS_ENV_VAR = 'CONFIGARO_LOCALS_MODULE'
 
-_CONFIG_DATA = {}
+_CONFIG_DATA = munchify({})
 
 
 class ConfigError(BaseException):
     """Base library exception class."""
 
-    def __init__(self, message=None):
+    def __init__(self, message: str=None):
         self.message = message
 
 
@@ -75,7 +76,7 @@ class ConfigObjectNotInitialized(ConfigError):
 class ConfigModuleNotFoundError(ConfigError):
     """Config module not found error."""
 
-    def __init__(self, path=None):
+    def __init__(self, path: str=None):
         super().__init__(f'config module not found: {path}')
         self.path = path
 
@@ -83,7 +84,7 @@ class ConfigModuleNotFoundError(ConfigError):
 class ConfigModuleNotValidError(ConfigError):
     """Config module does not contain a 'config' attribute of 'dict' type error."""
 
-    def __init__(self, path=None):
+    def __init__(self, path: str=None):
         super().__init__(f'config module not valid: {path}')
         self.path = path
 
@@ -91,7 +92,7 @@ class ConfigModuleNotValidError(ConfigError):
 class ConfigPropertyNotFoundError(ConfigError):
     """Config property not found error."""
 
-    def __init__(self, data=None, prop_name=None):
+    def __init__(self, data: Munch=None, prop_name: str=None):
         super().__init__(f'config property not found: {prop_name}')
         self.data = data
         self.prop_name = prop_name
@@ -100,7 +101,7 @@ class ConfigPropertyNotFoundError(ConfigError):
 class ConfigPropertyNotScalarError(ConfigError):
     """Config property not scalar error."""
 
-    def __init__(self, data=None, prop_name=None):
+    def __init__(self, data: Munch=None, prop_name: str=None):
         super().__init__(f'config property not scalar: {prop_name}')
         self.data = data
         self.prop_name = prop_name
@@ -109,12 +110,12 @@ class ConfigPropertyNotScalarError(ConfigError):
 class ConfigUpdateNotValidError(ConfigError):
     """Config update not valid error."""
 
-    def __init__(self, update=None):
+    def __init__(self, update: str=None):
         super().__init__(f'config update not valid: {update}')
         self.update = update
 
 
-def init(config_package, locals_path=None, locals_env_var=LOCALS_ENV_VAR):
+def init(config_package: str, locals_path: str=None, locals_env_var: str=LOCALS_ENV_VAR):
     """Initialize the config object.
 
     The config object must be initialized before use and is built from one or
@@ -156,9 +157,9 @@ def init(config_package, locals_path=None, locals_env_var=LOCALS_ENV_VAR):
     different values.
 
     Args:
-        config_package (str): package containing defaults and locals config modules
-        locals_path (str): path to locals config module
-        locals_env_var (str): name of environment variable providing path to locals config module
+        config_package: package containing defaults and locals config modules
+        locals_path: path to locals config module
+        locals_env_var: name of environment variable providing path to locals config module
 
     """
     global _CONFIG_DATA
@@ -169,11 +170,11 @@ def init(config_package, locals_path=None, locals_env_var=LOCALS_ENV_VAR):
         deltas = _load(path)
         merged = dict(_merge(_CONFIG_DATA, deltas))
         _CONFIG_DATA = merged
-    _CONFIG_DATA = munch.munchify(_CONFIG_DATA)
+    _CONFIG_DATA = munchify(_CONFIG_DATA)
 
 
-def get(*prop_names, **kwargs):
-    """Get config values.
+def get(*prop_names: str, **kwargs: str) -> Tuple[Union[Munch, Any]]:
+    """Query config values in config object.
 
     The config object must be initialized before use.
 
@@ -199,11 +200,11 @@ def get(*prop_names, **kwargs):
         prop = get('prop', default=None)
 
     Args:
-        prop_names (List[str]): config property names
-        kwargs (Dict[str, Any]): config get keyword args
+        prop_names: config property names
+        kwargs: config get keyword args
 
     Returns:
-        Tuple[munch.Munch]: property values
+        property values
 
     Raises:
         configaro.NotInitialized: if library has not been initialized
@@ -221,8 +222,8 @@ def get(*prop_names, **kwargs):
         return tuple([_get(_CONFIG_DATA, arg, **kwargs) for arg in prop_names])
 
 
-def put(*args, **kwargs):
-    """Put config values.
+def put(*args: str, **kwargs: str):
+    """Modify config values in config object.
 
     The config object must be initialized before use.
 
@@ -259,8 +260,8 @@ def put(*args, **kwargs):
         put(prop_a=True, prop_d={'greeting': 'Hello', 'subject': 'world'})
 
     Args:
-        args (Dict | str | List[str]): config dict object or one or more 'some.knob=value' update strings
-        kwargs (Dict[str, Any]): config update keyword args
+        args: config dict object or one or more 'some.knob=value' update strings
+        kwargs: config update keyword args
 
     Raises:
         configaro.ConfigObjectNotInitialized: if library has not been initialized
@@ -302,11 +303,11 @@ def put(*args, **kwargs):
         _put(_CONFIG_DATA, name, value)
 
 
-def _config_module_paths(config_package, locals_path=None, locals_env_var=LOCALS_ENV_VAR):
+def _config_module_paths(config_package: str, locals_path: str=None, locals_env_var: str=LOCALS_ENV_VAR) -> List[str]:
     """Configuration module paths accessor.
 
     Returns:
-        List[str]: configuration module paths
+        configuration module paths
 
     Raises:
         configaro.ConfigModuleNotFoundError: if config file not found
@@ -331,11 +332,11 @@ def _config_module_paths(config_package, locals_path=None, locals_env_var=LOCALS
     return config_paths
 
 
-def _config_package_dir(config_package):
+def _config_package_dir(config_package: str) -> str:
     """Configuration package directory accessor.
 
     Returns:
-        str: configuration package directory
+        configuration package directory
 
     Raises:
         ImportError: if config package defaults cannot be loaded.
@@ -345,7 +346,7 @@ def _config_package_dir(config_package):
     return os.path.dirname(module.__file__)
 
 
-def _cast(value):
+def _cast(value: str) -> Union[None, bool, int, float, str]:
     """Cast string value to real type.
 
     Args:
@@ -374,7 +375,7 @@ def _cast(value):
     return value
 
 
-def _get(data, prop_name, **kwargs):
+def _get(data: Munch, prop_name: str, **kwargs: str) -> Union[Munch, Any]:
     """Get config value identified by config property in config data.
 
 
@@ -399,7 +400,7 @@ def _get(data, prop_name, **kwargs):
             raise ConfigPropertyNotFoundError(data, prop_name)
 
 
-def _put(data, prop_name, prop_value):
+def _put(data: Munch, prop_name: str, prop_value=Any):
     """Put config value identified by config property in config data.
 
     Arg:
@@ -425,14 +426,14 @@ def _put(data, prop_name, prop_value):
     config[prop_name] = prop_value
 
 
-def _load(path):
+def _load(path: str) -> dict:
     """Load configuration values from file.
 
     Args:
-        path (str): config file path
+        path: config file path
 
     Returns:
-        Dict[str, Any]: config data
+        config data
 
     Raises:
         ImportError: if module cannot be imported
@@ -450,15 +451,15 @@ def _load(path):
         raise ConfigModuleNotValidError(path)
 
 
-def _merge(original, deltas):
+def _merge(original: dict, deltas: dict) -> Tuple[str, Any]:
     """Merge two dictionaries.
 
     Args:
-        original (dict): original data
-        deltas (dict): deltas data
+        original: original data
+        deltas: deltas data
 
     Yields:
-        Tuple[str, Any]: merged keys and values
+        merged keys and values
 
     """
     for k in set(original.keys()).union(deltas.keys()):
@@ -476,7 +477,7 @@ def _merge(original, deltas):
             yield k, deltas[k]
 
 
-def _import_module(module_dir, module_name):
+def _import_module(module_dir: str, module_name: str) -> Any:  # TODO: should be a module type!
     """Import module from directory.
 
     Args:
@@ -484,7 +485,7 @@ def _import_module(module_dir, module_name):
         module_name (str): module name
 
     Returns:
-         module: imported module
+         imported module
 
     Raises:
         ImportError: if module cannot be imported
@@ -496,15 +497,15 @@ def _import_module(module_dir, module_name):
     return _ConfigLoader(module_name, filename).load_module(module_name)
 
 
-def _module_path(module_dir, module_name):
+def _module_path(module_dir: str, module_name: str) -> str:
     """Get module path..
 
     Args:
-        module_dir (str): module directory
-        module_name (str): module name
+        module_dir: module directory
+        module_name: module name
 
     Returns:
-         module: module file path
+         module file path
 
     """
     filename = os.path.join(module_dir, *module_name.split('.'))

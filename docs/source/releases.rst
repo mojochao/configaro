@@ -13,6 +13,15 @@ Releases
 0.9 Series
 ==========
 
+0.9.11
+------
+
+Changes
+~~~~~~~
+
+- added type annotations to source code
+- added mypy to tox test environments
+
 0.9.10
 ------
 
