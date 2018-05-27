@@ -1,8 +1,8 @@
 .. _configaro_releases:
 
-=======
-Changes
-=======
+========
+Releases
+========
 
 ..  toctree::
     :maxdepth: 2
@@ -10,21 +10,24 @@ Changes
 
 .. _configaro_release_0_9_10:
 
+0.9 Series
+==========
+
 0.9.10
-======
+------
 
 Changes
--------
+~~~~~~~
 
 - sphinx documentation improvements
 
 .. _configaro_release_0_9_9:
 
 0.9.9
-=====
+-----
 
 Changes
--------
+~~~~~~~
 
 - refactored error class names to match documentation
 - added sphinx doc builds to tox tests
@@ -33,40 +36,40 @@ Changes
 .. _configaro_release_0_9_8:
 
 0.9.8
-=====
+-----
 
 Changes
--------
+~~~~~~~
 
 - documented readthedocs API documentation fail
 
 .. _configaro_release_0_9_7:
 
 0.9.7
-=====
+-----
 
 Features
---------
+~~~~~~~~
 
 - improvements to API documentation
 
 .. _configaro_release_0_9_6:
 
 0.9.6
-=====
+-----
 
 Features
---------
+~~~~~~~~
 
 - improvements to Usage documentation
 
 .. _configaro_release_0_9_5:
 
 0.9.5
-=====
+-----
 
 Features
---------
+~~~~~~~~
 
 - :meth:`configaro.get` now accepts *default* keyword arg to pass value to be returned if property is not found, instead of raising error
 - expanded test coverage
@@ -77,17 +80,17 @@ Features
 .. _configaro_release_0_9_4:
 
 0.9.4
-=====
+-----
 
 Features
---------
+~~~~~~~~
 
 - tox automation
 - improvements to documentation
 - improvements to :meth:`configaro.put` API
 
 Changes
--------
+~~~~~~~
 
 - converted to single module library
 - removed duplication of release metadata
@@ -96,47 +99,47 @@ Changes
 .. _configaro_release_0_9_3:
 
 0.9.3
-=====
+-----
 
 Fixes
------
+~~~~~
 
 - documentation build fixes
 
 .. _configaro_release_0_9_2:
 
 0.9.2
-=====
+-----
 
 Fixes
------
+~~~~~
 
 - packaging and requirements fixes
 
 Deletions
----------
+~~~~~~~~~
 
 - :meth:`configaro.render`
 
 .. _configaro_release_0_9_1:
 
 0.9.1
-=====
+-----
 
 Features
---------
+~~~~~~~~
 
 - documentation improvements
 
 .. _configaro_release_0_9_0:
 
 0.9.0
-=====
+-----
 
 Initial release of **configaro**.
 
 Features
---------
+~~~~~~~~
 
 - a simple API that is easy to use and gets out of your way
 - a system that allows for hierarchical configuration data that supports dot-addressable property access
@@ -145,21 +148,21 @@ Features
 - a system with high degree of documentation
 
 Fixes
------
+~~~~~
 
 - none
 
 Changes
--------
+~~~~~~~
 
 - none
 
 Deprecations
-------------
+~~~~~~~~~~~~
 
 - none
 
 Deletions
----------
+~~~~~~~~~
 
 - none

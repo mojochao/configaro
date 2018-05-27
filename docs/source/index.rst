@@ -55,7 +55,7 @@ there's  nothing to see here.
 
     usage
     api
-    changes
+    releases
 
 Indices and tables
 ==================
