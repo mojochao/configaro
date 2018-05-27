@@ -26,8 +26,8 @@ with the :meth:`configaro.put` API.
 A **config property** is a string identifying a config object or config
 config value in a dot-addressable format, such as ``inner.prop``.
 
-A **config value** is a scalar value of some type, typically None, bool,
-float, int or str, accessible by **config property**.
+A **config value** is a scalar value of some type, typically *None*, *bool*,
+*float*, *int* or *str* type, accessed by **config property**.
 
 Add configaro to your project
 -----------------------------
