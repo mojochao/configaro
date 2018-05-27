@@ -8,6 +8,16 @@ Changes
     :maxdepth: 2
     :caption: Contents:
 
+.. _configaro_release_0_9_10:
+
+0.9.10
+======
+
+Changes
+-------
+
+- sphinx documentation improvements
+
 .. _configaro_release_0_9_9:
 
 0.9.9

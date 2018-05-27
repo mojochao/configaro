@@ -41,8 +41,9 @@ If this sounds appealing to you, take a look:
 What about Python 2?
 --------------------
 
-I have zero interest in supporting Python 2 at this point.  If you are still
-using Python 2 then move along -- there's nothing to see here.
+**configaro** uses Python 3 features and I have zero interest in supporting
+Python 2 at this point.  If you are still using Python 2 then move along --
+there's  nothing to see here.
 
 Installation
 ------------

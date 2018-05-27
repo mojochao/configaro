@@ -1,7 +1,7 @@
 .. _configaro_usage:
 
-Usage
-=====
+Quickstart
+==========
 
 Understand configaro
 --------------------

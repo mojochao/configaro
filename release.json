@@ -1,7 +1,7 @@
 {
     "name": "configaro",
     "description": "A Python 3 configuration library that's music to your ears.",
-    "version": "0.9.9",
+    "version": "0.9.10",
     "url": "https://github.com/mojochao/configaro",
     "author": "Allen Gooch",
     "author_email": "allen.gooch@gmail.com",

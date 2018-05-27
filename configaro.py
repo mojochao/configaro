@@ -28,33 +28,6 @@ If this sounds appealing to you, take a look::
     cfg.put({'greeting': 'Goodbye', 'subject': 'Folks'})
     cfg.put('greeting=Goodbye subject=Folks')
 
-Concepts
---------
-
-**configaro** provides a **config object** loaded from a *defaults*
-**config module** in the **config package** and an optional *locals*
-**config module** in the **config package** or other directory.
-
-A **config package** is the name of a Python package to search for
-*defaults* and *locals* **config modules**.
-
-A **config module** is a Python module containing **config data** in a
-:class:`dict` module attribute named *config*. Values found in a *locals*
-**config module** will override those found in the *defaults* **config module**.
-
-A **config object** is a `dot-addressable dict <https://github.com/Infinidat/munch>`_
-containing **config data** loaded from a *defaults* and optional *locals*
-**config modules**.  The config object is built by calling the :meth:`configaro.init`
-API.  After initialization the config object, or any portion of it, may be
-queried with the :meth:`configaro.get` API or modified with the
-:meth:`configaro.put` API.
-
-A **config property** is a string identifying a config object or config
-config value in a dot-addressable format, such as ``inner.prop``.
-
-A **config value** is a scalar value of some type, typically *None*, *bool*,
-*float*, *int* or *str* type, accessed by **config property**.
-
 """
 import ast
 import os
