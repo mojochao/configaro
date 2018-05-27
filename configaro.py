@@ -34,6 +34,7 @@ import os
 import sys
 from importlib import import_module
 from importlib.abc import FileLoader, SourceLoader
+from types import CodeType, ModuleType
 from typing import Any, List, Tuple, Union
 
 from munch import Munch, munchify
@@ -350,10 +351,10 @@ def _cast(value: str) -> Union[None, bool, int, float, str]:
     """Cast string value to real type.
 
     Args:
-        value (str): value to cast
+        value: value to cast
 
     Returns:
-        None | bool | int | float | str: casted value
+        casted value
 
     """
     # Handle None type values
@@ -380,12 +381,12 @@ def _get(data: Munch, prop_name: str, **kwargs: str) -> Union[Munch, Any]:
 
 
     Arg:
-        data (dict): config data
-        prop_name (str): config property name
-        kwargs (dict): keyword arguments
+        data: config data
+        prop_name: config property name
+        kwargs: keyword arguments
 
     Returns:
-        munch.Munch: config value
+        config value
 
     Raises:
         configaro.ConfigPropertyNotFoundError: if property is not found and *default* keyword arg is not present
@@ -404,9 +405,9 @@ def _put(data: Munch, prop_name: str, prop_value=Any):
     """Put config value identified by config property in config data.
 
     Arg:
-        data (dict): config data
-        prop_name (str): config property name
-        prop_value (Any): config value
+        data: config data
+        prop_name: config property name
+        prop_value: config value
 
     Raises:
         configaro.ConfigPropertyNotFoundError: if config property is not found
@@ -477,12 +478,12 @@ def _merge(original: dict, deltas: dict) -> Tuple[str, Any]:
             yield k, deltas[k]
 
 
-def _import_module(module_dir: str, module_name: str) -> Any:  # TODO: should be a module type!
+def _import_module(module_dir: str, module_name: str) -> ModuleType:
     """Import module from directory.
 
     Args:
-        module_dir (str): module directory
-        module_name (str): module name
+        module_dir: module directory path
+        module_name: name of module to import from *module_dir*
 
     Returns:
          imported module
@@ -515,8 +516,11 @@ def _module_path(module_dir: str, module_name: str) -> str:
 class _ConfigLoader(FileLoader, SourceLoader):
     """Configuration module loader class."""
 
-    def get_code(self, fullname):
+    def get_code(self, fullname: str) -> CodeType:
         source = self.get_source(fullname)
         path = self.get_filename(fullname)
         parsed = ast.parse(source)
         return compile(parsed, path, 'exec', dont_inherit=True)
+
+    def module_repr(self, module: ModuleType):
+        return f'<config module {module.__name__} at {module.__file__}>'
