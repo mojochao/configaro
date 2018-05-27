@@ -8,6 +8,16 @@ Changes
     :maxdepth: 2
     :caption: Contents:
 
+.. _configaro_release_0_9_8:
+
+0.9.8
+=====
+
+Changes
+-------
+
+- documented readthedocs API documentation fail
+
 .. _configaro_release_0_9_7:
 
 0.9.7
