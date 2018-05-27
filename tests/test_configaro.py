@@ -99,6 +99,16 @@ def test__get():
     assert _get(data, 'monitoring.nginx.disabled') is True
     with pytest.raises(PropertyNotFoundError):
         assert _get(data, 'monitoring.nginx.disable') is True
+    assert _get(data, 'monitoring.nginx.disable', not_found=None) is None
+
+
+def test__put():
+    from configaro import _get, _put
+    data = munch.munchify(SAMPLE_DATA)
+    _put(data, 'name', 'locals')
+    assert _get(data, 'name') == 'locals'
+    _put(data, 'log.level', 'DEBUG')
+    assert _get(data, 'log.level') == 'DEBUG'
 
 
 def test__config_package_dir():
@@ -127,7 +137,6 @@ def test__ensure_initialized():
     from configaro import NotInitializedError, init, _ensure_initialized
     with pytest.raises(NotInitializedError):
         _ensure_initialized()
-
     init('tests.config')
     _ensure_initialized()
 
@@ -160,7 +169,7 @@ def test_initialize():
 
 
 def test_get():
-    from configaro import get, init
+    from configaro import PropertyNotFoundError, get, init
     init('tests.config')
     expected = {
         'name': 'locals',
@@ -177,30 +186,107 @@ def test_get():
             }
         }
     }
-
     config = get()
     assert config.log.level == 'DEBUG'
-    config = munch.unmunchify(config)
-    assert config == expected
-
+    assert config == munch.munchify(expected)
     log = get('log')
     assert log.level == 'DEBUG'
     log = munch.unmunchify(log)
     assert log == expected['log']
+    assert get('name') == 'locals'
+    assert get('log.level') == 'DEBUG'
+    assert get('monitoring.haproxy.disabled') is True
+    assert get('monitoring.nginx.disabled') is True
+    with pytest.raises(PropertyNotFoundError):
+        assert get('monitoring.nginx.disable') is True
+    assert get('monitoring.nginx.disable', not_found=None) is None
 
 
 def test_put():
     from configaro import PropertyNotScalarError, UpdateNotValidError, get, init, put
     init('tests.config')
-
     put('log.level=INFO')
     config = get()
     assert config.log.level == 'INFO'
-
     # ensure that we cannot put with a malformed arg
     with pytest.raises(UpdateNotValidError):
         put('log.level')
-
     # ensure that we cannot put a non-scalar
     with pytest.raises(PropertyNotScalarError):
         put('log=INFO')
+
+
+def test_ConfigaroError():
+    from configaro import ConfigaroError
+    message = 'this is an error'
+    error = ConfigaroError(message)
+    assert error.message == message
+
+
+def test_NotInitializedError():
+    from configaro import ConfigaroError, NotInitializedError
+    error = NotInitializedError()
+    assert isinstance(error, ConfigaroError)
+    assert error.message == 'configaro library uninitialized'
+
+
+def test_ConfigNotFoundError():
+    from configaro import ConfigaroError, ConfigNotFoundError
+    path = '/some/path'
+    error = ConfigNotFoundError(path)
+    assert isinstance(error, ConfigaroError)
+    assert error.message == f'config module not found: {path}'
+    assert error.path == path
+    path = '/another/path'
+    error = ConfigNotFoundError(path=path)
+    assert error.path == path
+
+
+def test_ConfigNotValidError():
+    from configaro import ConfigaroError, ConfigNotValidError
+    path = '/some/path'
+    error = ConfigNotValidError(path)
+    assert isinstance(error, ConfigaroError)
+    assert error.message == f'config module not valid: {path}'
+    assert error.path == path
+    error = ConfigNotValidError(path=path)
+    assert error.path == path
+
+
+def test_PropertyNotFoundError():
+    from configaro import ConfigaroError, PropertyNotFoundError
+    data = None
+    prop_name = 'prop.inner'
+    error = PropertyNotFoundError(data, prop_name)
+    assert isinstance(error, ConfigaroError)
+    assert error.message == f'config property not found: {prop_name}'
+    assert error.data == data
+    assert error.prop_name == prop_name
+    error = PropertyNotFoundError(prop_name=prop_name, data=data)
+    assert error.data == data
+    assert error.prop_name == prop_name
+
+
+def test_PropertyNotScalarError():
+    from configaro import ConfigaroError, PropertyNotScalarError
+    data = None
+    prop_name = 'prop.inner'
+    error = PropertyNotScalarError(data, prop_name)
+    assert isinstance(error, ConfigaroError)
+    assert error.message == f'config property not scalar: {prop_name}'
+    assert error.data == data
+    assert error.prop_name == prop_name
+    error = PropertyNotScalarError(prop_name=prop_name, data=data)
+    assert error.data == data
+    assert error.prop_name == prop_name
+
+
+def test_UpdateNotValidError():
+    from configaro import ConfigaroError, UpdateNotValidError
+    update = 'prop=value'
+    error = UpdateNotValidError(update)
+    assert isinstance(error, ConfigaroError)
+    assert error.message == f'config update not valid: {update}'
+    assert error.update == update
+    error = UpdateNotValidError(update=update)
+    assert error.update == update

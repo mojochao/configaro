@@ -8,6 +8,18 @@ Changes
     :maxdepth: 2
     :caption: Contents:
 
+.. _configaro_release_0_9_5:
+
+0.9.5
+=====
+
+Features
+--------
+
+- :meth:`configaro.get` now accepts *not_found* keyword arg to pass value to be returned if property is not found, instead of raising error
+- expanded test coverage
+- improvements to documentation
+
 .. _configaro_release_0_9_4:
 
 0.9.4

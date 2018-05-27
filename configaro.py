@@ -5,7 +5,7 @@
     - provide a single file library with minimal dependencies
     - provide one with a simple, expressive API that is easy to use and gets out of your way
     - provide one that allows for hierarchical config data supporting dot-addressable access
-    - provide one that allows for config defaults and local overrides
+    - provide one that allows for defaults and locals config modules
     - provide one with complete test coverage
     - provide one with complete documentation
 
@@ -26,7 +26,7 @@ If this sounds appealing to you, take a look::
     # Config objects may be updated quite flexibly as well.
     cfg.put(greeting='Goodbye', subject='Folks'}
     cfg.put({'greeting': 'Goodbye', 'subject': 'Folks'})
-    cfg.put('greeting=Goodby subject=Folks')
+    cfg.put('greeting=Goodbye subject=Folks')
 
 """
 import ast
@@ -34,6 +34,8 @@ import os
 import sys
 from importlib import import_module
 from importlib.abc import FileLoader, SourceLoader
+
+import munch
 
 __all__ = [
     'ConfigaroError',
@@ -84,14 +86,14 @@ class NotInitializedError(ConfigaroError):
     """Config file not found error."""
 
     def __init__(self):
-        super().__init__(f'configaro uninitialized')
+        super().__init__('configaro library uninitialized')
 
 
 class ConfigNotFoundError(ConfigaroError):
     """Module not found error."""
 
     def __init__(self, path):
-        super().__init__(f'module not found: {path}')
+        super().__init__(f'config module not found: {path}')
         self.path = path
 
 
@@ -99,7 +101,7 @@ class ConfigNotValidError(ConfigaroError):
     """Module does not contain a dict config attribute error."""
 
     def __init__(self, path):
-        super().__init__(f'module missing config: {path}')
+        super().__init__(f'config module not valid: {path}')
         self.path = path
 
 
@@ -118,7 +120,7 @@ class PropertyNotScalarError(ConfigaroError):
     def __init__(self, data, prop_name):
         super().__init__(f'config property not scalar: {prop_name}')
         self.data = data
-        self.prop = prop_name
+        self.prop_name = prop_name
 
 
 class UpdateNotValidError(ConfigaroError):
@@ -184,22 +186,36 @@ def init(config_package, locals_path=None, locals_env_var=None):
         _INITIALIZED = True
 
 
-def get(*prop_names):
+def get(*prop_names, **kwargs):
     """Get configuration values.
 
-    If no *prop_names* are provided, returns the config root object.
+    If no *prop_names* are provided, returns the config root object::
 
-    If one value is provided in *prop_names*, returns that config
-    sub-object.
+        config = get()
 
-    If multiple values are provided in *prop_names*, returns a list of
-    config sub-objects.
+    If one property name is provided, returns that config sub-object::
+
+        prop = get('prop')
+
+    If multiple property names are provided, returns a tuple of config sub-objects::
+
+        prop1, prop2 = get('prop1', 'prop2')
+
+    Multiple names can also be provided in a single string argument as well::
+
+        prop1, prop2 = get('prop1 prop2')
+
+    If property name is not found, raises configaro.PropertyNotFoundError, unless
+    a *not_found* keyword argument is provided::
+
+        prop = get('prop', not_found=None)
 
     Args:
-        prop_names (List[str]): configuration property names
+        prop_names (List[str]): config property names
+        kwargs (Dict[str, Any]): config get keyword args
 
     Returns:
-        Any | Dict[str, Any]: config property values
+        Tuple[munch.Munch]: property values
 
     Raises:
         configaro.NotInitialized: if library has not been initialized
@@ -211,9 +227,9 @@ def get(*prop_names):
     if not prop_names:
         return data
     elif len(prop_names) == 1:
-        return _get(data, prop_names[0])
+        return _get(data, prop_names[0], **kwargs)
     else:
-        return [_get(data, arg) for arg in prop_names]
+        return tuple([_get(data, arg, **kwargs) for arg in prop_names])
 
 
 def put(*args, **kwargs):
@@ -317,8 +333,7 @@ def _config_data():
             deltas = _load(path)
             merged = dict(_merge(_CONFIG_DATA, deltas))
             _CONFIG_DATA = merged
-        from munch import munchify
-        _CONFIG_DATA = munchify(_CONFIG_DATA)
+        _CONFIG_DATA = munch.munchify(_CONFIG_DATA)
     return _CONFIG_DATA
 
 
@@ -401,24 +416,29 @@ def _cast(value):
     return value
 
 
-def _get(data, prop_name):
+def _get(data, prop_name, **kwargs):
     """Get config value identified by config property in config data.
+
 
     Arg:
         data (dict): config data
         prop_name (str): config property name
+        kwargs (dict): keyword arguments
 
     Returns:
-        Any | Dict[str, Any]: config data
+        munch.Munch: config value
 
     Raises:
-        configaro.PropertyNotFoundError: if property is not found
+        configaro.PropertyNotFoundError: if property is not found and *not_found* keyword arg is not present
 
     """
     try:
         return eval(f'data.{prop_name}')  # NOTE: do not remove the 'data' parameter in function as it is used here!
     except AttributeError:
-        raise PropertyNotFoundError(data, prop_name)
+        try:
+            return kwargs['not_found']
+        except KeyError:
+            raise PropertyNotFoundError(data, prop_name)
 
 
 def _put(data, prop_name, prop_value):
@@ -540,7 +560,4 @@ class _ConfigLoader(FileLoader, SourceLoader):
         source = self.get_source(fullname)
         path = self.get_filename(fullname)
         parsed = ast.parse(source)
-        return compile(parsed, path, 'exec', dont_inherit=True, optimize=0)
-
-    def module_repr(self, module):
-        return f'<config {module.__name__} from {module.__file__}>'
+        return compile(parsed, path, 'exec', dont_inherit=True)

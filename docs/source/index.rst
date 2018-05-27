@@ -20,7 +20,7 @@ Why should I care?
     - provide a single file library with minimal dependencies
     - provide one with a simple, expressive API that is easy to use and gets out of your way
     - provide one that allows for hierarchical config data supporting dot-addressable access
-    - provide one that allows for config defaults and local overrides
+    - provide one that allows for defaults and locals config modules
     - provide one with complete test coverage
     - provide one with complete documentation
 
@@ -43,7 +43,7 @@ If this sounds appealing to you, take a look.
     # Config objects may be updated quite flexibly as well.
     cfg.put(greeting='Goodbye', subject='Folks'}
     cfg.put({'greeting': 'Goodbye', 'subject': 'Folks'})
-    cfg.put('greeting=Goodby subject=Folks')
+    cfg.put('greeting=Goodbye subject=Folks')
 
 What about Python 2?
 --------------------
