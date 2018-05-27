@@ -40,6 +40,7 @@ Errors
         $ python3 -m http.server
         $ open http://0.0.0.0:8000/
 
+    This issue is being tracked `here <https://github.com/rtfd/readthedocs.org/issues/4154>`_.
     I will continue to investigate, and hopefully resolve, this soon.
 
 ..  automodule:: configaro
