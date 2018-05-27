@@ -1,7 +1,7 @@
 .. _configaro_api:
 
-API
-===
+API Docs
+========
 
 Functions
 ---------

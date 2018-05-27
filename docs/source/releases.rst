@@ -1,17 +1,25 @@
 .. _configaro_releases:
 
-========
-Releases
-========
+=============
+Release Notes
+=============
 
-..  toctree::
-    :maxdepth: 2
-    :caption: Contents:
-
-.. _configaro_release_0_9_10:
+.. _configaro_release_0_9_x:
 
 0.9 Series
 ==========
+
+.. _configaro_release_0_9_12:
+
+0.9.12
+------
+
+Changes
+~~~~~~~
+
+- added more type annotations to source code
+
+.. _configaro_release_0_9_11:
 
 0.9.11
 ------
@@ -21,6 +29,8 @@ Changes
 
 - added type annotations to source code
 - added mypy to tox test environments
+
+.. _configaro_release_0_9_10:
 
 0.9.10
 ------

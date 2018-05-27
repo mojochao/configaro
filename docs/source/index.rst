@@ -51,7 +51,7 @@ there's  nothing to see here.
 
 ..  toctree::
     :maxdepth: 2
-    :caption: Contents:
+    :caption: Contents
 
     usage
     api
