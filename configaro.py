@@ -64,6 +64,7 @@ class ConfigError(BaseException):
     """Base library exception class."""
 
     def __init__(self, message: str=None):
+        super().__init__()
         self.message = message
 
 
@@ -214,10 +215,9 @@ def get(*prop_names: str, **kwargs: str) -> Tuple[Union[Munch, Any]]:
     """
     if not _CONFIG_DATA:
         raise ConfigObjectNotInitialized()
-
     if not prop_names:
         return _CONFIG_DATA
-    elif len(prop_names) == 1:
+    if len(prop_names) == 1:
         return _get(_CONFIG_DATA, prop_names[0], **kwargs)
     else:
         return tuple([_get(_CONFIG_DATA, arg, **kwargs) for arg in prop_names])
@@ -367,9 +367,9 @@ def _cast(value: str) -> Union[None, bool, int, float, str]:
         return True
     # Handle numeric type values.
     types = [int, float]
-    for t in types:
+    for type_ in types:
         try:
-            return t(value)
+            return type_(value)
         except ValueError:
             pass
     # Must be a string.
@@ -414,7 +414,6 @@ def _put(data: Munch, prop_name: str, prop_value=Any):
         configaro.ConfigPropertyNotScalarError: if config property is not scalar and non-dict value is provided
 
     """
-    from munch import Munch
     prop_parts = prop_name.split('.')
     if len(prop_parts) > 1:
         parent_prop_name = '.'.join(prop_parts[:-1])

@@ -9,6 +9,18 @@ Release Notes
 0.9 Series
 ==========
 
+.. _configaro_release_0_9_13:
+
+0.9.13
+------
+
+Fixes
+~~~~~
+
+- fixed missing super() call in :class:`configaro.ConfigError`
+- fixed some pylint warnings
+- fixed some inconsistently terminology usage in docs
+
 .. _configaro_release_0_9_12:
 
 0.9.12
