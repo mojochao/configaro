@@ -1,4 +1,4 @@
-"""**configaro** is a Python 3 configuration library that's music to your ears.
+"""**configaro** is a Python 3.6 configuration library that's music to your ears.
 
 It has been created with the following design goals in mind:
 

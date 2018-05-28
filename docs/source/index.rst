@@ -7,7 +7,7 @@ configaro
 What is it?
 ===========
 
-**configaro** is a Python 3 configuration library that's music to your ears.
+**configaro** is a Python 3.6 configuration library that's music to your ears.
 
 Why should I care?
 ==================
@@ -42,11 +42,11 @@ If this sounds appealing to you, take a look.
     cfg.put({'greeting': 'Goodbye', 'subject': 'Folks'})
     cfg.put('greeting=Goodbye subject=Folks')
 
-What about Python 2?
-====================
+What about earlier Python?
+==========================
 
-**configaro** uses Python 3 features and I have zero interest in supporting
-Python 2 at this point.  If you are still using Python 2 then move along --
+**configaro** uses Python 3.6 features and I have zero interest in supporting
+older versions.  If you are still using Python them then move along --
 there's  nothing to see here.
 
 ..  toctree::

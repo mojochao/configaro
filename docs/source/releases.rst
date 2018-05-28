@@ -9,6 +9,16 @@ Release Notes
 0.9 Series
 ==========
 
+.. _configaro_release_0_9_14:
+
+0.9.14
+------
+
+Fixes
+~~~~~
+
+- fixed failing readthedocs builds
+
 .. _configaro_release_0_9_13:
 
 0.9.13
