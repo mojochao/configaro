@@ -129,7 +129,7 @@ def init(config_package: str, locals_path: str=None, locals_env_var: str=None):
         init('my_pkg.config')
 
     The **locals** config module is loaded, next if it exists, from the following
-    locations, in precedence order from highest to lowest::
+    locations, in precedence order from highest to lowest:
 
     - one found at path specified by locals path
     - one found at path specified by locals env var
