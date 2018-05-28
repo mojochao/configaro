@@ -214,7 +214,7 @@ def get(*prop_names: str, **kwargs: str) -> Tuple[Union[Munch, Any]]:
     if len(prop_names) == 1:
         return _get(_CONFIG_DATA, prop_names[0], **kwargs)
     else:
-        return tuple([_get(_CONFIG_DATA, arg, **kwargs) for arg in prop_names])
+        return tuple([_get(_CONFIG_DATA, prop_name, **kwargs) for prop_name in prop_names])
 
 
 def put(*args: str, **kwargs: str):
@@ -286,16 +286,16 @@ def put(*args: str, **kwargs: str):
         args = args[0].split()
     for arg in args:
         try:
-            name, value = arg.split('=')
-            value = _cast(value)
-            _put(_CONFIG_DATA, name, value)
+            prop_name, value = arg.split('=')
+            prop_value = _cast(value)
+            _put(_CONFIG_DATA, prop_name, prop_value)
         except ValueError:
             raise ConfigUpdateNotValidError(arg)
 
     # Handle any keyword arguments.  If the caller doesn't care about nested
     # property updates, property names and values may be passed in keyword args.
-    for name, value in kwargs.items():
-        _put(_CONFIG_DATA, name, value)
+    for prop_name, prop_value in kwargs.items():
+        _put(_CONFIG_DATA, prop_name, prop_value)
 
 
 def _config_module_paths(config_package: str, locals_path: str=None, locals_env_var: str=None) -> List[str]:
