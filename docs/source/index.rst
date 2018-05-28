@@ -16,10 +16,8 @@ Why should I care?
 
     - provide a single file library with minimal dependencies
     - provide one with a simple, expressive API that is easy to use and gets out of your way
-    - provide one that allows for hierarchical config data supporting dot-addressable access
+    - provide one that allows for hierarchical config data with dot-addressable access
     - provide one that allows for defaults and locals config modules
-    - provide one with complete test coverage
-    - provide one with complete documentation
 
 If this sounds appealing to you, take a look.
 
@@ -46,8 +44,8 @@ What about earlier Python?
 ==========================
 
 **configaro** uses Python 3.6 features and I have zero interest in supporting
-older versions.  If you are still using Python them then move along --
-there's  nothing to see here.
+earlier versions.  If you are still using them then move along -- there's
+nothing to see here.
 
 ..  toctree::
     :maxdepth: 2

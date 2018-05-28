@@ -1,7 +1,7 @@
 {
     "name": "configaro",
     "description": "A Python 3.6 configuration library that's music to your ears.",
-    "version": "0.9.14",
+    "version": "1.0.0",
     "url": "https://github.com/mojochao/configaro",
     "author": "Allen Gooch",
     "author_email": "allen.gooch@gmail.com",
@@ -9,9 +9,8 @@
     "maintainer_email": "allen.gooch@gmail.com",
     "license": "MIT",
     "classifiers": [
-        "Development Status :: 4 - Beta",
+        "Development Status :: 5 - Production/Stable",
         "Natural Language :: English",
-        "Programming Language :: Python",
         "Programming Language :: Python :: 3.6",
         "License :: OSI Approved :: MIT License"
     ],

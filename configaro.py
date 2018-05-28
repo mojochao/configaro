@@ -4,10 +4,8 @@ It has been created with the following design goals in mind:
 
     - provide a single file library with minimal dependencies
     - provide one with a simple, expressive API that is easy to use and gets out of your way
-    - provide one that allows for hierarchical config data supporting dot-addressable access
+    - provide one that allows for hierarchical config data with dot-addressable access
     - provide one that allows for defaults and locals config modules
-    - provide one with complete test coverage
-    - provide one with complete documentation
 
 If this sounds appealing to you, take a look::
 
@@ -55,7 +53,6 @@ __all__ = [
 
 DEFAULTS_CONFIG_MODULE_NAME = 'defaults'
 LOCALS_CONFIG_MODULE_NAME = 'locals'
-LOCALS_ENV_VAR = 'CONFIGARO_LOCALS_MODULE'
 
 _CONFIG_DATA = munchify({})
 
@@ -117,7 +114,7 @@ class ConfigUpdateNotValidError(ConfigError):
         self.update = update
 
 
-def init(config_package: str, locals_path: str=None, locals_env_var: str=LOCALS_ENV_VAR):
+def init(config_package: str, locals_path: str=None, locals_env_var: str=None):
     """Initialize the config object.
 
     The config object must be initialized before use and is built from one or
@@ -134,8 +131,8 @@ def init(config_package: str, locals_path: str=None, locals_env_var: str=LOCALS_
     The **locals** config module is loaded, next if it exists, from the following
     locations, in precedence order from highest to lowest::
 
-    - one found at path specified by locals env var
     - one found at path specified by locals path
+    - one found at path specified by locals env var
     - one found in config package
 
     If no other options are provided, the **locals** config module will be loaded,
@@ -152,14 +149,11 @@ def init(config_package: str, locals_path: str=None, locals_env_var: str=LOCALS_
 
         init('my_pkg.config', locals_env_var='MY_PKG_CONFIG_LOCALS')
 
-    If the *locals_env_var* argument is not provided the ``CONFIGARO_LOCALS``
-    environment variable name will be used instead.
-
     Repeated initialization has no effect.  You can not re-initialize with
     different values.
 
     Args:
-        config_package: package containing defaults and locals config modules
+        config_package: package to search for config modules
         locals_path: path to locals config module
         locals_env_var: name of environment variable providing path to locals config module
 
@@ -178,7 +172,7 @@ def init(config_package: str, locals_path: str=None, locals_env_var: str=LOCALS_
 def get(*prop_names: str, **kwargs: str) -> Tuple[Union[Munch, Any]]:
     """Query config values in config object.
 
-    The config object must be initialized before use.
+    The config object must be initialized with :meth:`configaro.init` before use.
 
     If no *prop_names* are provided, returns the config root config object::
 
@@ -203,14 +197,14 @@ def get(*prop_names: str, **kwargs: str) -> Tuple[Union[Munch, Any]]:
 
     Args:
         prop_names: config property names
-        kwargs: config get keyword args
+        kwargs: config property names and values keyword args
 
     Returns:
         property values
 
     Raises:
-        configaro.NotInitialized: if library has not been initialized
-        configaro.ConfigPropertyNotFoundError: if a property in *prop_names* is not found
+        configaro.ConfigObjectNotInitialized: if config object has not been initialized
+        configaro.ConfigPropertyNotFoundError: if a config property in *prop_names* is not found
 
     """
     if not _CONFIG_DATA:
@@ -226,7 +220,7 @@ def get(*prop_names: str, **kwargs: str) -> Tuple[Union[Munch, Any]]:
 def put(*args: str, **kwargs: str):
     """Modify config values in config object.
 
-    The config object must be initialized before use.
+    The config object must be initialized with :meth:`configaro.init` before use.
 
     This function supports many expressive styles of usage.
 
@@ -262,12 +256,12 @@ def put(*args: str, **kwargs: str):
 
     Args:
         args: config dict object or one or more 'some.knob=value' update strings
-        kwargs: config update keyword args
+        kwargs: config property names and values keyword args
 
     Raises:
-        configaro.ConfigObjectNotInitialized: if library has not been initialized
-        configaro.ConfigPropertyNotScalarError: if property is not a scalar
-        configaro.ConfigUpdateNotValidError: if update string is not valid
+        configaro.ConfigObjectNotInitialized: if config object has not been initialized
+        configaro.ConfigPropertyNotScalarError: if config property is not a scalar
+        configaro.ConfigUpdateNotValidError: if config update string is not valid
 
     """
     if not _CONFIG_DATA:
@@ -304,32 +298,33 @@ def put(*args: str, **kwargs: str):
         _put(_CONFIG_DATA, name, value)
 
 
-def _config_module_paths(config_package: str, locals_path: str=None, locals_env_var: str=LOCALS_ENV_VAR) -> List[str]:
+def _config_module_paths(config_package: str, locals_path: str=None, locals_env_var: str=None) -> List[str]:
     """Config module paths accessor.
 
     Returns:
         config module paths
 
     Raises:
-        configaro.ConfigModuleNotFoundError: if config file not found
+        configaro.ConfigModuleNotFoundError: if config module not found
 
     """
     config_paths = []
     package_dir = _config_package_dir(config_package)
 
-    # Start by using 'defaults' module from the config package.
+    # Start by adding the 'defaults' config module in the config package.
     defaults_path = os.path.join(package_dir, f'{DEFAULTS_CONFIG_MODULE_NAME}.py')
     if not os.path.exists(defaults_path):
         raise ConfigModuleNotFoundError(defaults_path)
     config_paths.append(defaults_path)
 
-    # Continue by adding any 'locals' module.
+    # Continue by adding the 'locals' config module from.
+    if not locals_path and locals_env_var:
+        locals_path = os.environ.get(locals_env_var)
     if not locals_path:
-        locals_path = os.environ.get(locals_env_var) or os.path.join(package_dir, f'{LOCALS_CONFIG_MODULE_NAME}.py')
-    if locals_path:
-        if not os.path.exists(locals_path):
-            raise ConfigModuleNotFoundError(locals_path)
-        config_paths.append(locals_path)
+        locals_path = os.path.join(package_dir, f'{LOCALS_CONFIG_MODULE_NAME}.py')
+    if not os.path.exists(locals_path):
+        raise ConfigModuleNotFoundError(locals_path)
+    config_paths.append(locals_path)
     return config_paths
 
 
@@ -348,13 +343,13 @@ def _config_package_dir(config_package: str) -> str:
 
 
 def _cast(value: str) -> Union[None, bool, int, float, str]:
-    """Cast string value to real type.
+    """Cast string property value to real type.
 
     Args:
-        value: value to cast
+        value: property value to cast
 
     Returns:
-        casted value
+        casted property value
 
     """
     # Handle None type values
