@@ -1,8 +1,8 @@
 .. _configaro_docs:
 
-=======================
-configaro documentation
-=======================
+=========
+configaro
+=========
 
 What is it?
 ===========

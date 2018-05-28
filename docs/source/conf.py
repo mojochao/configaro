@@ -21,7 +21,7 @@ import sphinx_rtd_theme
 
 # add project directory to path so configaro module can be found by automodule
 project_dir = os.path.abspath('../..')
-print('PROJECT_DIR: {}').format(project_dir)
+print('PROJECT_DIR: {}'.format(project_dir)))
 sys.path.insert(0, project_dir)
 print('SYS.PATH: {}'.format(sys.path))
 
