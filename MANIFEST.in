@@ -2,7 +2,6 @@ include *.cfg
 include *.ini
 include *.json
 include *.md
-include *.rst
 include *.txt
 global-exclude *.py[co]
 graft docs
