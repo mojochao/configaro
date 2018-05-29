@@ -65,5 +65,5 @@ If you install from source with `.[dev]` you should be able to run tests:
 Documentation
 -------------
 
-`configaro` documentation is hosted on [Read The Docs](https://configaro.readthedocs.io/en/latest/)
+**configaro** documentation is hosted on [Read The Docs](https://configaro.readthedocs.io/en/latest/)
 and should be consulted for information on integrating it into your project.
