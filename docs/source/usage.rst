@@ -1,38 +1,11 @@
 .. _configaro_usage:
 
-Quickstart
-==========
+Usage
+=====
 
 ..  toctree::
     :maxdepth: 2
     :caption: Contents
-
-Understand configaro
---------------------
-
-**configaro** provides a **config object** loaded from a *defaults*
-**config module** in the **config package** and an optional *locals*
-**config module** in the **config package** or other directory.
-
-A **config package** is the name of a Python package to search for
-*defaults* and *locals* **config modules**.
-
-A **config module** is a Python module containing **config data** in a
-:class:`dict` module attribute named *config*. Values found in a *locals*
-**config module** will override those found in the *defaults* **config module**.
-
-A **config object** is a `dot-addressable dict <https://github.com/Infinidat/munch>`_
-containing **config data** loaded from a *defaults* and optional *locals*
-**config modules**.  The config object is built by calling the :meth:`configaro.init`
-API.  After initialization the config object, or any portion of it, may be
-queried with the :meth:`configaro.get` API or modified with the
-:meth:`configaro.put` API.
-
-A **config property** is a string identifying a config object or config
-config value in a dot-addressable format, such as ``inner.prop``.
-
-A **config value** is a scalar value of some type, typically *None*, *bool*,
-*float*, *int* or *str* type, accessed by **config property**.
 
 Add configaro to your project
 -----------------------------
@@ -49,25 +22,17 @@ it into your Python environment::
 
     $ pip3 install -r requirements.txt
 
-Add defaults config module
---------------------------
+Add defaults config module to your project
+------------------------------------------
 
-If a ``demo_prj`` project contains a ``demo_pkg`` package, create a
-``demo_prj/demo_pkg/config`` config package directory::
+Add a *defaults* config module to your config package directory::
 
-    $ mkdir demo_pkg/config
-
-Create a ``demo_pkgr/config/defaults.py`` config module in that directory::
-
-    $ cat >> demo_pkg/config/defaults.py << EOF
+    # mypkg/config/defaults.py
     config = {
-        'greeting': 'hello',
-        'subject': {
-            'first_name': 'Joe',
-            'last_name': 'World'
+        'inner': {
+            'prop': 'some_value'
         }
     }
-    EOF
 
 Initialize the library
 ----------------------

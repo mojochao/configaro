@@ -1,32 +1,3 @@
-"""**configaro** is a Python 3.6 configuration library that's music to your ears.
-
-It has been created with the following design goals in mind:
-
-    - provide a single file library with minimal dependencies
-    - provide one with a simple, expressive API that is easy to use and gets out of your way
-    - provide one that allows for hierarchical config data with dot-addressable access
-    - provide one that allows for defaults and locals config modules
-
-If this sounds appealing to you, take a look::
-
-    import configaro as cfg
-
-    # Initialize the library with the name of the package containing your defaults.py config module
-    cfg.init('mypkg.config')
-
-    # Get the entire config object
-    config = cfg.get()
-    print(config)  # prints "{'greeting': 'Hello', 'subject': 'World'}"
-
-    # Config object provide attribute access style in addition to dict access style.
-    print('f{config.greeting}, {config.subject}!')  # prints "Hello, World!"
-
-    # Config objects may be updated quite flexibly as well.
-    cfg.put(greeting='Goodbye', subject='Folks'}
-    cfg.put({'greeting': 'Goodbye', 'subject': 'Folks'})
-    cfg.put('greeting=Goodbye subject=Folks')
-
-"""
 import ast
 import os
 import sys

@@ -4,9 +4,19 @@
 Release Notes
 =============
 
-.. _configaro_release_1_0_0:
+.. _configaro_release_1_0_1:
 
 1.0.1
+=====
+
+Changes
+-------
+
+- documentation changes only
+
+.. _configaro_release_1_0_0:
+
+1.0.0
 =====
 
 Initial release of **configaro**, a Python 3.6 configuration library that's
