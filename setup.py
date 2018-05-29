@@ -14,7 +14,6 @@ with open('requirements.txt') as infile:
 
 release_metadata.update(dict(
     py_modules=['configaro'],
-    long_description=long_description,
     install_requires=requirements,
     zip_safe=True,
     test_suite='tests',
