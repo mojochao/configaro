@@ -2,6 +2,7 @@
 coverage
 detox
 fabric
+flake8
 pep8
 pytest
 pytest-cov
