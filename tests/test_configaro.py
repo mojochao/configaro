@@ -138,7 +138,7 @@ def test_exports():
     assert sorted(exports) == sorted(expected)
 
 
-def test_initialize():
+def test_init():
     from configaro import init
     init('tests.config')
 
