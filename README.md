@@ -1,6 +1,10 @@
 configaro
 =========
 
+[![Build Status](https://travis-ci.org/mojochao/configaro.svg?branch=master)](https://travis-ci.org/mojochao/configaro)
+
+[![Documentation Status](https://readthedocs.org/projects/configaro/badge/?version=latest)](http://configaro.readthedocs.io/?badge=latest)
+
 What is it?
 -----------
 
