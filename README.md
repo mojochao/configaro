@@ -40,7 +40,7 @@ If this sounds appealing to you, take a look:
     cfg.put('greeting=Goodbye subject=Folks')
 
 What about earlier Python?
-==========================
+--------------------------
 
 **configaro** uses Python 3.6 features and I have zero interest in supporting
 earlier versions.  If you are still using them then move along -- there's
