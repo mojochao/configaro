@@ -334,9 +334,8 @@ def _config_module_paths(config_package: str, locals_path: str=None, locals_env_
         locals_path = os.environ.get(locals_env_var)
     if not locals_path:
         locals_path = os.path.join(package_dir, f'{LOCALS_CONFIG_MODULE_NAME}.py')
-    if not os.path.exists(locals_path):
-        raise ConfigModuleNotFoundError(locals_path)
-    config_paths.append(locals_path)
+    if os.path.exists(locals_path):
+        config_paths.append(locals_path)
     return config_paths
 
 
