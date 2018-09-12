@@ -1,6 +1,6 @@
 # configaro
 
-**configaro** is a Python 3.6 configuration library that's music to your ears.
+**configaro** is a Python 3 configuration library that's music to your ears.
 
 [![Build Status](https://travis-ci.org/mojochao/configaro.svg?branch=master)](https://travis-ci.org/mojochao/configaro)
 
@@ -49,7 +49,7 @@ A **config value** is a scalar value of some type, typically *None*, *bool*,
 
 Add the package dependency using `pipenv <https://docs.pipenv.org/>`_;
 
-    $ cd ~/projects/demo_prj
+    $ cd ~/MyProject/my_project
     $ pipenv install configaro
 
 Alternatively, add it to your ``requirements.txt`` file and ``pip3`` install
@@ -57,30 +57,43 @@ it into your Python environment;
 
     $ pip3 install -r requirements.txt
 
-### Add defaults config module to your project
+### Add config package to your project
 
-Add a *defaults* config module to your config package directory:
+Add a config package to your project:
 
-    # mypkg/config/defaults.py
-    config = {
-        'inner': {
-            'prop': 'some_value'
-        }
-    }
-
-### Import configaro
-
-All APIs are provided by the **configaro** module:
-
-    import configaro
-
-### Initialize the config object
+    # my_project/config/__init__.py
+    from configaro import (
+        ConfigError,
+        ConfigModuleNotFoundError,
+        ConfigModuleNotValidError,
+        ConfigPropertyNotFoundError,
+        ConfigPropertyNotScalarError,
+        ConfigUpdateNotValidError,
+        get,
+        init,
+        put
+    )
+    
+    __all__ = [
+        'ConfigError',
+        'ConfigModuleNotFoundError',
+        'ConfigModuleNotValidError',
+        'ConfigPropertyNotFoundError',
+        'ConfigPropertyNotScalarError',
+        'ConfigUpdateNotValidError',
+        'get',
+        'put',
+    ]
+    
+All APIs are provided by the **configaro** module.  Import all of them and 
+export all but the **init** function, which is only used here to initialize the
+config object.
 
 The config object must be initialized before use.  At a minimum, it requires
 the name of the config package containing the *defaults* config module
 ``defaults.py``:
 
-    configaro.init('mypkg.config')
+    init('my_project.config')
 
 The config data provided by the *defaults* config module may be overridden
 with config data provided by a *locals* config module.  This module, if it
@@ -94,44 +107,62 @@ highest to lowest:
 The locals path and locals env var can optionally be passed as keyword
 arguments;
 
-    configaro.init('mypkg.config', locals_path='/etc/mypkg/locals.py', locals_env_var='MYPKG_LOCALS_PATH')
+    init('my_project.config', locals_path='/etc/my_project/locals.py', locals_env_var='MY_PROJECT_LOCALS_PATH')
 
 Once initialized, the config object may be queried with the :meth:`configaro.get`
-function and modified with the :meth:`configaro.put` function.
+function and modified with the :meth:`configaro.put` function exported by your
+config package.
+
+### Add defaults config module to your project
+
+Add a *defaults* config module to your config package directory:
+
+    # my_project/config/defaults.py
+    config = {
+        'inner': {
+            'prop': 'some_value'
+        }
+    }
 
 ### Query the config object
 
 To query the initialized config object, call :meth:`configaro.get` with no
 arguments;
 
-    config = configaro.get()
+    # my_project/app.py
+    from my_project import config
+
+    config_obj = config.get()
 
 The returned config object provides dot-addressable config data access;
 
-    value = config.inner.prop
+    value = config_obj.inner.prop
 
 You can query any portion of the config object my name.
 Scalar config properties can be queried;
 
-    value = configaro.get('inner.prop')
+    value = config.get('inner.prop')
 
 Nested config objects can also be queried;
 
-    inner = configaro.get('inner')
+    inner = config.get('inner')
     value = inner.prop
 
 Multiple items can be returned at once by passing multiple positional
 arguments;
 
-    inner, another = configaro.get('inner', 'another')
-    inner, another = configaro.get('inner another')
+    inner, another = config.get('inner', 'another')
+    inner, another = config.get('inner another')
 
 ### Modify the config object
 
 To modify the initialized config object, use the :meth:`configaro.put`
 function.  To modify the entire config object, provide one dict argument;
 
-    configaro.put({
+    # my_project/app.py
+    from my_project import config
+
+    config.put({
         'inner': {
             'prop': 'some value'
         },
@@ -141,26 +172,26 @@ function.  To modify the entire config object, provide one dict argument;
 Any portion of of the config object can be similarly modified with a property
 name and dict argument;
 
-    configaro.put('inner', {'prop': 'some_value'})
+    config.put('inner', {'prop': 'some_value'})
 
 Scalar config data can be modified with an update string;
 
-    configaro.put('inner.prop=some_value')
+    config.put('inner.prop=some_value')
 
 Multiple items can be modified at once by passing multiple update strings;
 
-    configaro.put('inner.prop=some_value', 'another=another_value')
-    configaro.put('inner.prop=some_value another=another_value')
+    config.put('inner.prop=some_value', 'another=another_value')
+    config.put('inner.prop=some_value another=another_value')
 
 Update string values will be cast to None, bool, int and float values before
 updating the config object.
 
 Root config properties can also be modified by passing keyword arguments;
 
-    configaro.put(another='another_value', inner={'prop': 'some_value'})
+    config.put(another='another_value', inner={'prop': 'some_value'})
 
 ## Caveats
 
-**configaro** uses Python 3.6 features and I have zero interest in supporting
-earlier versions.  If you are still using them then move along -- there's
-nothing to see here.
+**configaro** uses Python 3.6 features (*f-strings*) and I have zero interest in
+supporting earlier versions.  If you are still using them then move along --
+there's nothing to see here.

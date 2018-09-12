@@ -127,7 +127,7 @@ def test_exports():
         'ConfigError',
         'ConfigModuleNotFoundError',
         'ConfigModuleNotValidError',
-        'ConfigObjectNotInitialized',
+        'ConfigObjectNotInitializedError',
         'ConfigPropertyNotFoundError',
         'ConfigPropertyNotScalarError',
         'ConfigUpdateNotValidError',
@@ -199,8 +199,8 @@ def test_ConfigaroError():
 
 
 def test_NotInitializedError():
-    from configaro import ConfigError, ConfigObjectNotInitialized
-    error = ConfigObjectNotInitialized()
+    from configaro import ConfigError, ConfigObjectNotInitializedError
+    error = ConfigObjectNotInitializedError()
     assert isinstance(error, ConfigError)
     assert error.message == 'config object not initialized'
 

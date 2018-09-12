@@ -1,3 +1,5 @@
+"""Configaro Python configuration library."""
+
 import ast
 import os
 import sys
@@ -12,7 +14,7 @@ __all__ = [
     'ConfigError',
     'ConfigModuleNotFoundError',
     'ConfigModuleNotValidError',
-    'ConfigObjectNotInitialized',
+    'ConfigObjectNotInitializedError',
     'ConfigPropertyNotFoundError',
     'ConfigPropertyNotScalarError',
     'ConfigUpdateNotValidError',
@@ -29,24 +31,37 @@ _CONFIG_DATA = munchify({})
 
 
 class ConfigError(BaseException):
-    """Base library exception class."""
+    """Configaro base configuration error class."""
 
-    def __init__(self, message: str=None):
+    def __init__(self, message: str):
+        """Initialize new ConfigError object.
+
+        Args:
+            message: error message
+
+        """
         super().__init__()
         self.message = message
 
 
-class ConfigObjectNotInitialized(ConfigError):
+class ConfigObjectNotInitializedError(ConfigError):
     """Config object not initialized error."""
 
     def __init__(self):
+        """Initialize new ConfigObjectNotInitializedError object."""
         super().__init__('config object not initialized')
 
 
 class ConfigModuleNotFoundError(ConfigError):
     """Config module not found error."""
 
-    def __init__(self, path: str=None):
+    def __init__(self, path: str):
+        """Initialize new ConfigModuleNotFoundError object.
+
+        Args:
+            path: config module path
+
+        """
         super().__init__(f'config module not found: {path}')
         self.path = path
 
@@ -54,7 +69,13 @@ class ConfigModuleNotFoundError(ConfigError):
 class ConfigModuleNotValidError(ConfigError):
     """Config module does not contain a 'config' attribute of 'dict' type error."""
 
-    def __init__(self, path: str=None):
+    def __init__(self, path):
+        """Initialize new ConfigModuleNotValidError object.
+
+        Args:
+            path: config module path
+
+        """
         super().__init__(f'config module not valid: {path}')
         self.path = path
 
@@ -62,7 +83,14 @@ class ConfigModuleNotValidError(ConfigError):
 class ConfigPropertyNotFoundError(ConfigError):
     """Config property not found error."""
 
-    def __init__(self, data: Munch=None, prop_name: str=None):
+    def __init__(self, data: Munch, prop_name: str):
+        """Initialize new ConfigPropertyNotFoundError object.
+
+        Args:
+            data: config object data
+            prop_name: config property name
+
+        """
         super().__init__(f'config property not found: {prop_name}')
         self.data = data
         self.prop_name = prop_name
@@ -71,7 +99,14 @@ class ConfigPropertyNotFoundError(ConfigError):
 class ConfigPropertyNotScalarError(ConfigError):
     """Config property not scalar error."""
 
-    def __init__(self, data: Munch=None, prop_name: str=None):
+    def __init__(self, data: Munch, prop_name: str):
+        """Initialize new ConfigPropertyNotScalarError object.
+
+        Args:
+            data: config object data
+            prop_name: config property name
+
+        """
         super().__init__(f'config property not scalar: {prop_name}')
         self.data = data
         self.prop_name = prop_name
@@ -80,7 +115,13 @@ class ConfigPropertyNotScalarError(ConfigError):
 class ConfigUpdateNotValidError(ConfigError):
     """Config update not valid error."""
 
-    def __init__(self, update: str=None):
+    def __init__(self, update: str):
+        """Initialize new ConfigUpdateNotValidError object.
+
+        Args:
+            update: config update
+
+        """
         super().__init__(f'config update not valid: {update}')
         self.update = update
 
@@ -97,7 +138,7 @@ def init(config_package: str, locals_path: str=None, locals_env_var: str=None):
     argument is used to define the package in which the **defaults** config
     module, named ``defaults.py``, is loaded from::
 
-        init('my_pkg.config')
+        init('my_project.config')
 
     The **locals** config module is loaded, next if it exists, from the following
     locations, in precedence order from highest to lowest:
@@ -112,13 +153,13 @@ def init(config_package: str, locals_path: str=None, locals_env_var: str=None):
     If the optional *locals_path* argument is provided it will be used, if it
     exists, instead of any ``locals.py`` config module in the config package::
 
-        init('my_pkg.config', locals_path='/path/to/my/alternatively_named_locals.py')
+        init('my_project.config', locals_path='/path/to/my/alternatively_named_locals.py')
 
     If the optional *locals_env_var* argument is provided it will be used as a
     an environment variable configuring the path of the locals config module to
     load, if the module exists::
 
-        init('my_pkg.config', locals_env_var='MY_PKG_CONFIG_LOCALS')
+        init('my_project.config', locals_env_var='MY_PROJECT_CONFIG_LOCALS')
 
     Repeated initialization has no effect.  You can not re-initialize with
     different values.
@@ -174,12 +215,12 @@ def get(*prop_names: str, **kwargs: str) -> Tuple[Union[Munch, Any]]:
         property values
 
     Raises:
-        configaro.ConfigObjectNotInitialized: if config object has not been initialized
+        configaro.ConfigObjectNotInitializedError: if config object has not been initialized
         configaro.ConfigPropertyNotFoundError: if a config property in *prop_names* is not found
 
     """
     if not _CONFIG_DATA:
-        raise ConfigObjectNotInitialized()
+        raise ConfigObjectNotInitializedError()
     if not prop_names:
         return _CONFIG_DATA
     if len(prop_names) == 1:
@@ -230,13 +271,13 @@ def put(*args: str, **kwargs: str):
         kwargs: config property names and values keyword args
 
     Raises:
-        configaro.ConfigObjectNotInitialized: if config object has not been initialized
+        configaro.ConfigObjectNotInitializedError: if config object has not been initialized
         configaro.ConfigPropertyNotScalarError: if config property is not a scalar
         configaro.ConfigUpdateNotValidError: if config update string is not valid
 
     """
     if not _CONFIG_DATA:
-        raise ConfigObjectNotInitialized()
+        raise ConfigObjectNotInitializedError()
 
     # Handle passing in a single dict arg.
     if len(args) == 1 and isinstance(args[0], dict):
@@ -309,7 +350,7 @@ def _config_package_dir(config_package: str) -> str:
         ImportError: if config package defaults cannot be loaded.
 
     """
-    module = import_module('defaults', config_package)
+    module = import_module(f'{config_package}.defaults')
     return os.path.dirname(module.__file__)
 
 
