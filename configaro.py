@@ -221,7 +221,7 @@ def get(*prop_names: str, **kwargs: str) -> Tuple[Union[Munch, Any]]:
     """
     if not _CONFIG_DATA:
         raise ConfigObjectNotInitializedError()
-    if not prop_names:
+    if not prop_names or len(prop_names) == 1 and prop_names[0] is None:
         return _CONFIG_DATA
     if len(prop_names) == 1:
         return _get(_CONFIG_DATA, prop_names[0], **kwargs)
