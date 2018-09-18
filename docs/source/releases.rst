@@ -4,6 +4,36 @@
 Release Notes
 =============
 
+.. _configaro_release_1_0_4:
+
+1.0.4
+=====
+
+Fixes
+-----
+
+- fix tuple args bug
+
+.. _configaro_release_1_0_3:
+
+1.0.3
+=====
+
+Fixes
+-----
+
+- fix add of non-existent locals
+
+.. _configaro_release_1_0_2:
+
+1.0.2
+=====
+
+Fixes
+-----
+
+- fix init method and improve docs
+
 .. _configaro_release_1_0_1:
 
 1.0.1
