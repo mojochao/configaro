@@ -4,6 +4,16 @@
 Release Notes
 =============
 
+.. _configaro_release_1_0_6:
+
+1.0.6
+=====
+
+Fixes
+-----
+
+- fix typing of ``get`` function result.
+
 .. _configaro_release_1_0_5:
 
 1.0.5
