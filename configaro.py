@@ -181,7 +181,7 @@ def init(config_package: str, locals_path: str=None, locals_env_var: str=None):
     _CONFIG_DATA = munchify(_CONFIG_DATA)
 
 
-def get(*prop_names: str, **kwargs: str) -> Tuple[Union[Munch, Any], ...]:
+def get(*prop_names: str, **kwargs: str) -> Any:
     """Query config values in config object.
 
     The config object must be initialized with :meth:`configaro.init` before use.
